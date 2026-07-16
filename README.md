@@ -9,6 +9,7 @@
 | Skill | 说明 |
 | --- | --- |
 | [optimize-prompt-stack](./skills/optimize-prompt-stack/) | 面向 GPT-5.6 审计、迁移并渐进优化项目提示词栈，提供有证据的前后对比。 |
+| [agent-image-optimizer](./skills/agent-image-optimizer/) | 使用本地 CLI 安全压缩 Agent 图片产物：检查、预览、有损/无损优化与 JSON 回执。 |
 
 ## Tools
 
