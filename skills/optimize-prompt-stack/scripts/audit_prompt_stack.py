@@ -14,7 +14,14 @@ from pathlib import Path
 
 ALLOWED_SUFFIXES = {".md", ".txt", ".yaml", ".yml", ".json", ".toml"}
 KNOWN_NAMES = {"AGENTS.md", "CLAUDE.md", "GEMINI.md", "SKILL.md"}
-CONTEXT_DIRS = {".codex", ".agents", ".claude", "prompts"}
+CONTEXT_DIRS = {
+    ".codex", ".agents", ".claude", ".codex-plugin", ".claude-plugin",
+    ".superpowers", "prompts",
+}
+FRAMEWORK_DOC_PATHS = {
+    ("docs", "superpowers"),
+    ("docs", "compound-engineering"),
+}
 IGNORED_DIRS = {
     ".git", "node_modules", "dist", "build", ".next", "target", "vendor",
     "coverage", ".venv", "venv", "__pycache__",
@@ -57,7 +64,14 @@ def is_candidate(path: Path) -> bool:
         return False
     if path.name in KNOWN_NAMES or "prompt" in path.name.lower():
         return True
-    return bool(set(path.parts) & CONTEXT_DIRS)
+    if set(path.parts) & CONTEXT_DIRS:
+        return True
+    parts = tuple(part.lower() for part in path.parts)
+    return any(
+        parts[index:index + len(prefix)] == prefix
+        for prefix in FRAMEWORK_DOC_PATHS
+        for index in range(len(parts) - len(prefix) + 1)
+    )
 
 
 def normalize_line(line: str) -> str:
