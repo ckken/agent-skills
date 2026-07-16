@@ -1,0 +1,4 @@
+interface:
+  display_name: "Karpathy Guidelines for GPT-5.6"
+  short_description: "Keeps coding changes small, scoped, and verified."
+  default_prompt: "Use Karpathy guidelines to make the smallest complete in-scope change and validate it in proportion to risk."

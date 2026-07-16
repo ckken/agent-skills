@@ -9,6 +9,7 @@
 | Skill | 说明 |
 | --- | --- |
 | [optimize-prompt-stack](./skills/optimize-prompt-stack/) | 面向 GPT-5.6 审计、迁移并渐进优化项目提示词栈，提供有证据的前后对比。 |
+| [karpathy-guidelines](./skills/karpathy-guidelines/) | 面向 GPT-5.6 的轻量编码纠偏规则，抑制过度设计、范围漂移和验证不足。 |
 | [ip-visual-designer](./skills/ip-visual-designer/) | 锚定用户提供的 IP 视觉身份，并制作 README、文章、网页和社媒封面，以及发布海报和多尺寸传播物料。 |
 
 ## Tools
