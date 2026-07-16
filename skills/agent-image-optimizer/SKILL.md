@@ -5,7 +5,7 @@ description: 使用 agent-image-opt 对 ImageGen、截图、海报和 README 图
 
 # Agent 图片优化器
 
-按“检查 → 预览 → 写入 → 验证”的顺序使用本地 `agent-image-opt` CLI。该工具完全离线运行，不需要网络、账号或鉴权。
+按“安装 → 检查 → 预览 → 写入 → 验证”的顺序使用 `agent-image-opt` CLI。压缩过程完全离线运行，不需要账号或鉴权；首次安装或更新时从本仓库的 GitHub Release 下载经过 SHA-256 校验的二进制。
 
 ## 开始前
 
@@ -16,11 +16,19 @@ command -v agent-image-opt
 agent-image-opt --json doctor
 ```
 
-如果命令不存在，在本仓库执行：
+如果命令不存在，运行 Skill 内置安装器：
 
 ```bash
-make -C tools/agent-image-opt install-local
+<this-skill-dir>/scripts/install.sh
 ```
+
+Windows PowerShell 使用：
+
+```powershell
+<this-skill-dir>\scripts\install.ps1
+```
+
+如果只有 GitHub 仓库访问权限，可使用 [README.md](README.md) 中的远程安装命令。重新运行安装器即可更新到最新 Release。仓库贡献者仍可通过 `make -C tools/agent-image-opt install-local` 从源码安装。
 
 ## 安全检查路径
 

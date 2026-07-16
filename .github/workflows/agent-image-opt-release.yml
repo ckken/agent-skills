@@ -1,0 +1,150 @@
+name: Release agent-image-opt
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "tools/agent-image-opt/**"
+      - ".github/workflows/agent-image-opt-release.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: agent-image-opt-release
+  cancel-in-progress: false
+
+env:
+  CARGO_TERM_COLOR: always
+  MANIFEST_PATH: tools/agent-image-opt/Cargo.toml
+
+jobs:
+  build:
+    name: Build ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            archive: agent-image-opt-x86_64-unknown-linux-gnu.tar.gz
+          - os: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-gnu
+            archive: agent-image-opt-aarch64-unknown-linux-gnu.tar.gz
+          - os: macos-15-intel
+            target: x86_64-apple-darwin
+            archive: agent-image-opt-x86_64-apple-darwin.tar.gz
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            archive: agent-image-opt-aarch64-apple-darwin.tar.gz
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            archive: agent-image-opt-x86_64-pc-windows-msvc.zip
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Select stable Rust
+        run: |
+          rustup update stable
+          rustup default stable
+          rustup target add "${{ matrix.target }}"
+        shell: bash
+
+      - name: Test
+        run: cargo test --locked --manifest-path "$MANIFEST_PATH"
+        shell: bash
+
+      - name: Build release binary
+        run: cargo build --release --locked --target "${{ matrix.target }}" --manifest-path "$MANIFEST_PATH"
+        shell: bash
+
+      - name: Smoke test Unix binary
+        if: runner.os != 'Windows'
+        run: tools/agent-image-opt/target/${{ matrix.target }}/release/agent-image-opt --json doctor
+        shell: bash
+
+      - name: Smoke test Windows binary
+        if: runner.os == 'Windows'
+        run: tools/agent-image-opt/target/${{ matrix.target }}/release/agent-image-opt.exe --json doctor
+        shell: pwsh
+
+      - name: Package Unix binary
+        if: runner.os != 'Windows'
+        run: |
+          mkdir -p dist/package
+          cp "tools/agent-image-opt/target/${{ matrix.target }}/release/agent-image-opt" dist/package/
+          tar -C dist/package -czf "dist/${{ matrix.archive }}" agent-image-opt
+        shell: bash
+
+      - name: Package Windows binary
+        if: runner.os == 'Windows'
+        run: |
+          New-Item -ItemType Directory -Force -Path dist/package | Out-Null
+          Copy-Item "tools/agent-image-opt/target/${{ matrix.target }}/release/agent-image-opt.exe" dist/package/
+          Compress-Archive -Path dist/package/agent-image-opt.exe -DestinationPath "dist/${{ matrix.archive }}"
+        shell: pwsh
+
+      - name: Upload packaged binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}
+          path: dist/${{ matrix.archive }}
+          if-no-files-found: error
+          retention-days: 7
+
+  release:
+    name: Publish rolling release
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Download packaged binaries
+        uses: actions/download-artifact@v5
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Generate checksums and release notes
+        run: |
+          cd dist
+          sha256sum agent-image-opt-* > SHA256SUMS
+          cd ..
+          cat > release-notes.md <<EOF
+          Automated rolling build of \`agent-image-opt\`.
+
+          Source commit: \`${GITHUB_SHA}\`
+
+          Supported assets:
+          - macOS Apple Silicon and Intel
+          - Linux ARM64 and x86_64
+          - Windows x86_64
+
+          Download through the installer bundled with the \`agent-image-optimizer\` Skill. Every asset is verified against \`SHA256SUMS\` before installation.
+          EOF
+        shell: bash
+
+      - name: Publish release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          release_tag="agent-image-opt-${GITHUB_SHA::12}"
+          if gh release view "$release_tag" >/dev/null 2>&1; then
+            echo "Release $release_tag already exists."
+          else
+            gh release create "$release_tag" dist/* \
+              --target "$GITHUB_SHA" \
+              --title "agent-image-opt ${GITHUB_SHA::12}" \
+              --notes-file release-notes.md \
+              --latest
+          fi
+        shell: bash

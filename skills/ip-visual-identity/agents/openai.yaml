@@ -1,0 +1,5 @@
+interface:
+  display_name: "IP 视觉身份锚定"
+  short_description: "从参考图提取稳定的角色身份与视觉约束"
+  default_prompt: "使用 $ip-visual-identity 分析我提供的 IP 参考图，建立可复用于封面和宣传图生成的身份 brief。"
+

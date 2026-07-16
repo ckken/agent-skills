@@ -1,0 +1,5 @@
+interface:
+  display_name: "IP 宣传海报"
+  short_description: "基于指定 IP 制作发布图、海报和系列传播物料"
+  default_prompt: "使用 $ip-promo-poster 基于我提供的 IP 参考图和产品卖点，制作角色一致、文案准确且适合发布的宣传图。"
+

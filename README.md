@@ -9,15 +9,18 @@
 | Skill | 说明 |
 | --- | --- |
 | [optimize-prompt-stack](./skills/optimize-prompt-stack/) | 面向 GPT-5.6 审计、迁移并渐进优化项目提示词栈，提供有证据的前后对比。 |
-| [agent-image-optimizer](./skills/agent-image-optimizer/) | 使用本地 CLI 安全压缩 Agent 图片产物：检查、预览、有损/无损优化与 JSON 回执。 |
+| [agent-image-optimizer](./skills/agent-image-optimizer/) | 自动下载并使用 `agent-image-opt`，安全完成图片检查、预览、有损/无损优化与 JSON 回执。 |
+| [ip-visual-identity](./skills/ip-visual-identity/) | 从用户提供的 IP 参考图建立可复用的角色身份锚点，减少系列视觉中的角色漂移。 |
+| [ip-cover-designer](./skills/ip-cover-designer/) | 基于指定 IP 制作 README、文章、网页 Hero 和社交媒体封面。 |
+| [ip-promo-poster](./skills/ip-promo-poster/) | 基于指定 IP 制作功能发布图、宣传海报和多尺寸传播物料。 |
 
 ## Tools
 
 | Tool | 说明 |
 | --- | --- |
-| [agent-image-opt](./tools/agent-image-opt/) | Rust CLI：对 Agent 图片产物做无损 PNG 优化或有损 WebP 压缩，并生成压缩回执。 |
+| [agent-image-opt](./tools/agent-image-opt/) | Rust CLI：推送源码变更后自动构建多平台二进制，并提供给 `agent-image-optimizer` 下载使用。 |
 
-开发者首次克隆后运行 `make setup-hooks`，提交 `agent-image-opt` 相关修改时会自动触发 release build。
+开发者首次克隆后运行 `make setup-hooks`，提交 `agent-image-opt` 相关修改时会自动执行本地 release build；推送到 `main` 后会创建带源码提交 SHA 的 [最新 Release](https://github.com/ckken/agent-skills/releases/latest)。
 
 ## 使用方式
 

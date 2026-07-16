@@ -2,6 +2,16 @@
 
 面向 ImageGen、截图、海报和 README 资源的 Rust 图片优化 CLI。支持无损 PNG 优化与有损 WebP 输出；默认不覆盖原图，并可生成 JSON 回执。该工具完全离线运行，不需要账号、网络或鉴权。
 
+## 自动分发
+
+`main` 分支中的 `tools/agent-image-opt/**` 发生变化后，GitHub Actions 会自动测试并构建：
+
+- macOS Apple Silicon / Intel；
+- Linux ARM64 / x86_64；
+- Windows x86_64。
+
+每个源码提交会生成一个带提交短 SHA 的 [Release](https://github.com/ckken/agent-skills/releases/latest)，并附带 `SHA256SUMS`。普通用户应通过 [`agent-image-optimizer`](../../skills/agent-image-optimizer/) Skill 的安装脚本下载最新版本；本目录主要用于源码开发。
+
 ## 构建
 
 ```bash
@@ -9,7 +19,7 @@ make build
 make install-local
 ```
 
-`make install-local` 将二进制安装到 `~/.local/bin/agent-image-opt`。确保该目录已加入 `PATH` 后，可从任意仓库调用。
+`make install-local` 将当前源码构建出的二进制安装到 `~/.local/bin/agent-image-opt`。确保该目录已加入 `PATH` 后，可从任意仓库调用。
 
 ## 命令
 
