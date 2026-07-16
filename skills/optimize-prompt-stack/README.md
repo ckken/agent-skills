@@ -2,7 +2,7 @@
 
 面向 GPT-5.6 系列审计、迁移并渐进优化项目的 Agent 提示词栈：覆盖 `AGENTS.md`、Agent 配置、Skills、工具或 MCP 描述、上下文与记忆规则、长会话状态和评测资产。
 
-![GPT-5.6 提示词栈优化器推广图](./assets/promo.webp)
+![GPT-5.6 提示词栈优化器推广图](./assets/promo-v2.webp)
 
 ## 解决什么问题
 
