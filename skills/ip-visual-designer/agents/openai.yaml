@@ -1,0 +1,4 @@
+interface:
+  display_name: "IP 视觉设计"
+  short_description: "锚定指定 IP，并制作封面、海报和多尺寸物料"
+  default_prompt: "使用 $ip-visual-designer 分析我提供的 IP 参考图，并按目标场景制作角色一致、文案准确且适合发布的视觉物料。"

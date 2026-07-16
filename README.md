@@ -10,9 +10,7 @@
 | --- | --- |
 | [optimize-prompt-stack](./skills/optimize-prompt-stack/) | 面向 GPT-5.6 审计、迁移并渐进优化项目提示词栈，提供有证据的前后对比。 |
 | [agent-image-optimizer](./skills/agent-image-optimizer/) | 自动下载并使用 `agent-image-opt`，安全完成图片检查、预览、有损/无损优化与 JSON 回执。 |
-| [ip-visual-identity](./skills/ip-visual-identity/) | 从用户提供的 IP 参考图建立可复用的角色身份锚点，减少系列视觉中的角色漂移。 |
-| [ip-cover-designer](./skills/ip-cover-designer/) | 基于指定 IP 制作 README、文章、网页 Hero 和社交媒体封面。 |
-| [ip-promo-poster](./skills/ip-promo-poster/) | 基于指定 IP 制作功能发布图、宣传海报和多尺寸传播物料。 |
+| [ip-visual-designer](./skills/ip-visual-designer/) | 锚定用户提供的 IP 视觉身份，并制作 README、文章、网页和社媒封面，以及发布海报和多尺寸传播物料。 |
 
 ## Tools
 

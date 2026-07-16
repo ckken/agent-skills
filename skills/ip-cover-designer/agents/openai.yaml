@@ -1,5 +1,0 @@
-interface:
-  display_name: "IP 封面设计"
-  short_description: "用指定 IP 制作 README、文章和社媒封面"
-  default_prompt: "使用 $ip-cover-designer 基于我提供的 IP 参考图，为当前项目制作主题清晰、角色一致且已压缩的封面。"
-
