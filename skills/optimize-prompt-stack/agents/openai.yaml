@@ -1,0 +1,4 @@
+interface:
+  display_name: "GPT-5.6 提示词栈优化器"
+  short_description: "面向 GPT-5.6 审计、迁移并验证项目 Agent 提示词栈"
+  default_prompt: "使用 $optimize-prompt-stack 将当前项目的 Agent 提示词栈优化为适配 GPT-5.6 的分层配置，并给出可验证的前后对比。"
