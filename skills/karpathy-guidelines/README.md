@@ -34,3 +34,11 @@
 
 - [`SKILL.md`](./SKILL.md)：触发范围、执行规则、风险分级和完成检查。
 - [`assets/cover.optimized.webp`](./assets/cover.optimized.webp)：发布用压缩封面。
+
+## 封面制作记录
+
+- 创建能力：[`ip-visual-designer`](../ip-visual-designer/SKILL.md)
+- 执行模式：`cover`，角色引导者构图
+- IP 参考：[`assets/agent-skills-cover.webp`](../../assets/agent-skills-cover.webp)
+- 发布规格：1600 × 900 WebP
+- 处理流程：以仓库 Kenvo AI 狐狸为身份锚点生成母版，再通过 `agent-image-opt` 检查、压缩和视觉验收
