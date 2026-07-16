@@ -142,9 +142,10 @@ description: 基于用户提供的角色、吉祥物或品牌 IP 参考图，提
 
 ### 8. 压缩与接入
 
-使用 `$agent-image-optimizer` 先检查和 dry-run，再写入发布文件：
+使用 `agent-image-opt` 先检查和 dry-run，再写入发布文件。运行前先确认 CLI 可用：
 
 ```bash
+agent-image-opt --json doctor
 agent-image-opt --json inspect <image-or-directory> --recursive
 agent-image-opt --json optimize <image-or-directory> --recursive --preset illustration --dry-run
 agent-image-opt --json optimize <image-or-directory> --recursive --preset illustration --report image-opt-report.json

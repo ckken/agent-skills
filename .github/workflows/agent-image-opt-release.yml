@@ -129,7 +129,7 @@ jobs:
           - Linux ARM64 and x86_64
           - Windows x86_64
 
-          Download through the installer bundled with the \`agent-image-optimizer\` Skill. Every asset is verified against \`SHA256SUMS\` before installation.
+          Install with the scripts in \`tools/agent-image-opt/scripts\`. Every asset is verified against \`SHA256SUMS\` before installation.
           EOF
         shell: bash
 

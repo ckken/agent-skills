@@ -10,7 +10,23 @@
 - Linux ARM64 / x86_64；
 - Windows x86_64。
 
-每个源码提交会生成一个带提交短 SHA 的 [Release](https://github.com/ckken/agent-skills/releases/latest)，并附带 `SHA256SUMS`。普通用户应通过 [`agent-image-optimizer`](../../skills/agent-image-optimizer/) Skill 的安装脚本下载最新版本；本目录主要用于源码开发。
+每个源码提交会生成一个带提交短 SHA 的 [Release](https://github.com/ckken/agent-skills/releases/latest)，并附带 `SHA256SUMS`。
+
+## 安装
+
+macOS / Linux：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/ckken/agent-skills/main/tools/agent-image-opt/scripts/install.sh | sh
+```
+
+Windows PowerShell：
+
+```powershell
+irm https://raw.githubusercontent.com/ckken/agent-skills/main/tools/agent-image-opt/scripts/install.ps1 | iex
+```
+
+安装器会下载当前平台对应的最新 Release，并在写入前校验 `SHA256SUMS`。默认安装到 `~/.local/bin`，可通过 `AGENT_IMAGE_OPT_INSTALL_DIR` 修改。
 
 ## 构建
 
