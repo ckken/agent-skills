@@ -2,7 +2,7 @@
 
 一组可复用的 AI Agent Skills，帮助团队把项目级 Agent 工作流做得更清晰、更稳定、可验证。
 
-![GPT-5.6 提示词栈优化器](./skills/optimize-prompt-stack/assets/promo.png)
+![GPT-5.6 提示词栈优化器](./skills/optimize-prompt-stack/assets/promo.webp)
 
 ## Skills
 
