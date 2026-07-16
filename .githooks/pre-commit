@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if git diff --cached --name-only --diff-filter=ACMR | grep -q '^tools/agent-image-opt/'; then
+  echo "pre-commit: building tools/agent-image-opt"
+  make -C tools/agent-image-opt build
+fi
