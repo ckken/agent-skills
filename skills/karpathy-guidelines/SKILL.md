@@ -1,43 +1,43 @@
 ---
 name: karpathy-guidelines
-description: Use when explicitly requested, or when a coding task risks overengineering, scope creep, unnecessary refactoring, or unclear completion criteria. Produces a small, complete change with proportionate validation. Skip trivial, well-scoped edits unless explicitly requested.
+description: 用户明确调用，或编码任务存在过度设计、范围漂移、无关重构、完成标准不清等风险时使用。交付小而完整的变更，并按风险进行适度验证。除非用户明确要求，否则不用于范围清晰的简单修改。
 license: MIT
 ---
 
-# Karpathy Guidelines for GPT-5.6
+# 面向 GPT-5.6 的 Karpathy 编码准则
 
-A lightweight corrective overlay, not a mandatory coding workflow.
+这是一组轻量纠偏规则，不是强制执行的编码流程。
 
-## Contract
+## 执行约定
 
-Deliver the smallest complete, maintainable change that satisfies the request, respects the codebase, and is verified in proportion to risk.
+在尊重现有代码库的前提下，交付满足用户要求、完整且可维护的最小变更，并根据风险完成相应验证。
 
-## Rules
+## 规则
 
-- Identify the requested outcome, scope, constraints, and completion bar.
-- Proceed with reasonable, reversible assumptions. Ask only when missing information materially changes the outcome, authorization, scope, or an irreversible decision.
-- Prefer the simplest approach that meets current requirements. Surface alternatives only when the tradeoff affects the result.
-- Do not add speculative features, abstractions, configurability, or compatibility work.
-- Preserve existing architecture, conventions, and style unless the outcome requires change.
-- Exclude unrelated cleanup, formatting, and refactoring.
-- Include tests, types, documentation, generated files, or dependency metadata only when they support the outcome or its validation.
-- Remove artifacts made obsolete by this change; leave pre-existing dead code alone unless correctness requires otherwise.
-- Run the smallest relevant check for the affected behavior. Expand only when repository rules, risk, or failure requires it.
-- Verify the user-visible behavior or failure mode when practical; a passing command may be insufficient.
-- Report the completed outcome, validation performed, and material limitations or unverified risks.
+- 明确用户要求的结果、范围、约束和完成标准。
+- 对可逆且风险较低的信息缺口做合理假设。只有缺失信息会明显影响结果、授权范围、任务边界或不可逆决策时才向用户确认。
+- 选择满足当前要求的最简单方案。只有取舍会影响结果时，才说明其他选择。
+- 不添加未经要求的功能、抽象、配置项或兼容处理。
+- 除非任务目标要求调整，否则保留现有架构、约定和风格。
+- 不做与任务无关的清理、格式化或重构。
+- 只有测试、类型、文档、生成文件或依赖元数据有助于交付或验证时，才修改它们。
+- 删除因本次变更而失效的产物。除非影响正确性，不处理原本就存在的无用代码。
+- 对受影响行为执行最小且相关的检查。只有仓库规范、风险或失败结果要求时，才扩大验证范围。
+- 条件允许时，验证用户实际看到的行为或故障场景。命令通过不一定代表任务完成。
+- 报告完成结果、验证内容，以及仍未验证的重要风险或限制。
 
-## Scale by risk
+## 按风险调整流程
 
-- **Trivial:** implement directly, run one focused check, and skip ceremony.
-- **Multi-step:** use a short plan only when dependencies need coordination.
-- **High-risk:** establish a baseline or reproduction, add regression coverage, run broader checks, and consider rollback.
+- **简单任务：** 直接实现并执行一项针对性检查，不增加多余流程。
+- **多步骤任务：** 只有依赖关系需要协调时，才使用简短计划。
+- **高风险任务：** 先建立基线或复现问题，再补充回归验证、扩大检查范围，并考虑回滚方案。
 
-## Guardrails
+## 边界
 
-- Do not require test-first development when another check better fits the artifact.
-- Do not use arbitrary line counts or equate fewer lines with simpler code.
-- Do not let this Skill override user instructions, repository rules, safety requirements, or authorization boundaries.
+- 如果其他检查方式更适合当前产物，不强制要求测试先行。
+- 不使用任意行数限制，也不把代码更少等同于方案更简单。
+- 本 Skill 不得覆盖用户要求、仓库规则、安全要求或授权边界。
 
-## Stop
+## 完成条件
 
-Stop when the requested outcome is met, every changed file or hunk supports that outcome or its validation, relevant checks pass, and material limitations are stated. Do not continue improving adjacent code.
+用户要求的结果已经实现，每个改动文件和代码片段都服务于该结果或验证，相关检查已经通过，并已说明重要限制，此时任务完成。不要继续修改相邻代码。

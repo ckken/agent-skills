@@ -1,29 +1,12 @@
-# Agent Skills
+# Agent 技能集
 
-一组可复用的 AI Agent Skills，帮助团队把项目级 Agent 工作流做得更清晰、更稳定、可验证。
+这里收录了一组使用中文编写的 AI Agent 技能，适合直接用于项目开发。
 
 ![Kenvo AI Agent Skills 合集](./assets/agent-skills-cover.webp)
 
-## Skills
+## 技能
 
-| Skill | 说明 |
+| 技能 | 介绍 |
 | --- | --- |
-| [optimize-prompt-stack](./skills/optimize-prompt-stack/) | 面向 GPT-5.6 审计、迁移并渐进优化项目提示词栈，提供有证据的前后对比。 |
-| [karpathy-guidelines](./skills/karpathy-guidelines/) | 面向 GPT-5.6 的轻量编码纠偏规则，抑制过度设计、范围漂移和验证不足。 |
-| [ip-visual-designer](./skills/ip-visual-designer/) | 锚定用户提供的 IP 视觉身份，并制作 README、文章、网页和社媒封面，以及发布海报和多尺寸传播物料。 |
-
-## Tools
-
-| Tool | 说明 |
-| --- | --- |
-| [agent-image-opt](./tools/agent-image-opt/) | Rust CLI：安全完成图片检查、预览、有损/无损优化与 JSON 回执，并自动构建多平台二进制。 |
-
-开发者首次克隆后运行 `make setup-hooks`，提交 `agent-image-opt` 相关修改时会自动执行本地 release build；推送到 `main` 后会创建带源码提交 SHA 的 [最新 Release](https://github.com/ckken/agent-skills/releases/latest)。
-
-## 使用方式
-
-将需要的 Skill 目录放入你的 Agent Skills 路径后，在任务中引用其名称即可。每个 Skill 的触发范围、执行流程和验证要求见其目录内的 README 与 `SKILL.md`。
-
-## License
-
-本仓库基于 [MIT License](./LICENSE) 开源。
+| [optimize-prompt-stack](./skills/optimize-prompt-stack/) | 审查并优化面向 GPT-5.6 的项目提示词栈，支持迁移、渐进调整和前后效果对比。 |
+| [karpathy-guidelines](./skills/karpathy-guidelines/) | 一套面向 GPT-5.6 的轻量编码规则，用于减少过度设计、范围偏移和验证不足。 |
