@@ -1,7 +1,7 @@
 interface:
   display_name: "Codex Git CI/CD 自动驾驶"
-  short_description: "安全完成 Git、CI/CD 与高保真 handoff"
-  default_prompt: "使用 $codex-git-cicd 完成当前仓库的 Git 和 CI/CD 闭环，保留无关改动，并生成可恢复的 handoff。"
+  short_description: "安全完成 Git、worktree、CI/CD 与高保真 handoff"
+  default_prompt: "使用 $codex-git-cicd 完成当前仓库的 Git、worktree 和 CI/CD 闭环，保留无关改动，并生成可恢复的 handoff。"
 
 policy:
   allow_implicit_invocation: true
