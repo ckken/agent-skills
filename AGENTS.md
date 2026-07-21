@@ -7,6 +7,15 @@
 - 开源 Skill 放在 `skills/<category>/<skill-name>/`，工具放在 `tools/<tool-name>/`。根 README 只登记开源 Skill。
 - 分类目录和 Skill 名称使用小写 kebab-case；Skill 名称需与 `SKILL.md` frontmatter 中的 `name` 保持一致。
 
+## Git / CI/CD 自动驾驶
+
+- 本仓库的 Git、worktree、提交、推送、CI 和 handoff 默认使用 [`codex-git-cicd`](skills/development/codex-git-cicd/SKILL.md)；开始时先运行仓库与全部 worktree 体检，再按其状态机推进。
+- 对修改型任务，本项目规则视为已授权自动完成 `VERIFY → COMMIT → PUSH → CI → HANDOFF`，无需逐步等待人工确认；用户明确要求只读、只修改、只提交、暂不推送或限定其他终点时，以用户边界为准。
+- 自动提交必须按任务隔离，只暂存本任务文件；发现用户已有改动、错误产物或其他任务内容时保留原状，并采用局部暂存或独立 worktree。
+- push 前刷新远端并处理 ahead/behind；push 后核对远端 HEAD 和对应 CI。没有触发 CI 时明确记录原因，不把本地测试等同于远端流水线。
+- 不自动 force-push、合并 PR、创建 tag、发布、部署、删除分支或强制删除 worktree；这些高风险或生产动作仍需用户明确授权。
+- 失败或外部阻塞时停止扩大写操作，输出可恢复 handoff，包含 worktree、分支、HEAD、验证证据、阻塞和下一条原子动作。
+
 ## 新建 Skill
 
 每次新建 Skill 时，必须同时交付以下文件：
