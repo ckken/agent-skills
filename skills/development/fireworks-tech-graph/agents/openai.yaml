@@ -1,0 +1,4 @@
+interface:
+  display_name: "Fireworks 技术图"
+  short_description: "生成经过几何校验的技术图与语义动效"
+  default_prompt: "使用 $fireworks-tech-graph 将用户的系统或流程描述转换为经过几何校验的 SVG，并按需导出 PNG、离线交互 HTML 或经过验证的语义 GIF；直接提出 GIF 请求时使用已验收的 5.75 秒、115 帧默认时间线。"
