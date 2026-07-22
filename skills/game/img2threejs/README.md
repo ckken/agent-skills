@@ -6,7 +6,12 @@
 
 ## 在线体验
 
-[打开 Cloudflare Pages WebGL Demo](https://img2threejs-demo.pages.dev/demo?model=bike)
+[打开 Cloudflare Pages WebGL Demo](https://img2threejs-demo.pages.dev/demo?model=car)
+
+Demo 内含宝箱、概念摩托和多视图 GT 赛车三个模型。GT 赛车示例使用六向正投影、四个三分之四
+视角及八组细节特写共同约束车体、轮组、空气动力套件和 PBR 材质。默认的多视图投影模式用于
+保留证据视角的原始像素细节；“纯 3D 结构”按钮用于检查可旋转的程序化几何。这里的高精度指
+固定证据视角下的视觉还原，不代表已经生成可在任意角度保持同等细节的生产级网格。
 
 这个 Skill 适合游戏原型、网页 3D、道具重建、角色草模、可破坏物件和材质研究。它要求
 Agent 先判断图片是否适合 3D 重建，再建立细节清单和 `SculptSpec`，按 blockout → 结构 →

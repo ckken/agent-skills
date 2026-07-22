@@ -44,22 +44,24 @@
         <h2>示例模型</h2><p>点击缩略图切换主预览。</p>
         <button class="thumb active" data-example="chest"><img src="assets/thumbnails/chest.webp" alt="程序化宝箱缩略图"><span><strong>Procedural Loot Chest</strong><span>材质、lid pivot、发光锁芯</span><span class="ready" id="chest-ready">待加载</span></span></button>
         <button class="thumb" data-example="bike"><img src="assets/thumbnails/bike.webp" alt="Ares RB-08 摩托车缩略图"><span><strong>Ares RB-08</strong><span>附件参考图的风格化重建</span><span class="ready" id="bike-ready">待加载</span></span></button>
+        <button class="thumb" data-example="car"><img src="assets/thumbnails/car.webp" alt="Apex GT-R 黄色赛车缩略图"><span><strong>Apex GT-R</strong><span>11 视角高精度赛车重建</span><span class="ready" id="car-ready">待加载</span></span></button>
       </aside>
       <section class="viewer">
         <header class="viewer-head"><div><h2 id="model-title">Procedural Loot Chest</h2><p id="model-meta">材质、lid pivot、发光锁芯</p></div><span class="status" id="status">● LOADING</span></header>
         <iframe id="preview" title="img2threejs 模型主预览" src="about:blank" allow="fullscreen"></iframe>
-        <div class="toolbar"><button id="reload">重新加载当前模型</button><a id="direct" href="demos/chest.html" target="_blank" rel="noopener">全屏打开</a><button id="action">切换宝箱开合</button><button id="spin">暂停 / 恢复自转</button><span class="summary" id="summary">已验证 0 / 2 个模型</span></div>
+        <div class="toolbar"><button id="reload">重新加载当前模型</button><a id="direct" href="demos/chest.html" target="_blank" rel="noopener">全屏打开</a><button id="action">切换宝箱开合</button><button id="spin">暂停 / 恢复自转</button><span class="summary" id="summary">已验证 0 / 3 个模型</span></div>
       </section>
     </section>
-    <p class="foot">模型可在主预览内拖动旋转、滚轮缩放。摩托的隐藏面、底部与机械连接属于单张参考图下的风格化推断。</p>
+    <p class="foot">模型可在主预览内拖动旋转、滚轮缩放。赛车使用正、后、左右、俯视、底盘、三分之四视角与细节特写共同约束几何和材质。</p>
   </main>
   <script>
     const catalog = {
       chest: { title:'Procedural Loot Chest', meta:'材质、lid pivot、发光锁芯', src:'demos/chest.html', action:'切换宝箱开合', command:'chest-toggle' },
       bike: { title:'Ares RB-08', meta:'附件参考图的风格化摩托重建', src:'demos/bike.html', action:'切换摩托引擎', command:'bike-engine' },
+      car: { title:'Apex GT-R', meta:'纯 3D 结构 + 九视角高精度投影', src:'demos/car.html', action:'切换投影 / 纯 3D', command:'car-projection' },
     };
-    const frame = document.querySelector('#preview'); const verified = new Set(); let active = new URLSearchParams(location.search).get('model') === 'bike' ? 'bike' : 'chest';
-    const refreshSummary = () => document.querySelector('#summary').textContent = `已验证 ${verified.size} / 2 个模型`;
+    const frame = document.querySelector('#preview'); const verified = new Set(); const requested = new URLSearchParams(location.search).get('model'); let active = catalog[requested] ? requested : 'chest';
+    const refreshSummary = () => document.querySelector('#summary').textContent = `已验证 ${verified.size} / ${Object.keys(catalog).length} 个模型`;
     const updateThumbs = () => document.querySelectorAll('.thumb').forEach(button => button.classList.toggle('active', button.dataset.example === active));
     function load(name) {
       active = name; const entry = catalog[name]; history.replaceState(null, '', `${location.pathname}?model=${name}`);
