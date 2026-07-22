@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>img2threejs · Ares RB-08 Reconstruction</title>
+  <style>
+    :root { color-scheme: dark; --cyan:#68e0ff; --red:#ff4b53; --muted:#aebed2; }
+    * { box-sizing: border-box; }
+    body { margin:0; overflow:hidden; background:#05070d; color:#f4f7ff; font:14px/1.5 Inter,ui-sans-serif,system-ui,sans-serif; }
+    canvas { display:block; width:100vw; height:100vh; touch-action:none; }
+    .hud { position:fixed; inset:0; padding:clamp(18px,3vw,38px); display:flex; flex-direction:column; justify-content:space-between; pointer-events:none; }
+    .top,.bottom { display:flex; justify-content:space-between; gap:18px; align-items:flex-start; }
+    .eyebrow { color:var(--red); font-size:12px; font-weight:800; letter-spacing:.13em; text-transform:uppercase; }
+    h1 { margin:5px 0 0; font-size:clamp(27px,4vw,46px); letter-spacing:-.045em; line-height:1; }
+    .note { width:min(310px,45vw); border:1px solid rgba(102,224,255,.25); border-radius:13px; padding:12px 14px; background:rgba(6,12,25,.76); color:var(--muted); }
+    .note b { display:block; color:#7de9ad; letter-spacing:.08em; font-size:12px; }
+    .controls { display:flex; flex-wrap:wrap; gap:9px; pointer-events:auto; }
+    button,a { border:1px solid rgba(104,224,255,.34); border-radius:999px; padding:10px 14px; background:rgba(11,35,61,.8); color:#f4f7ff; font:inherit; font-weight:700; text-decoration:none; cursor:pointer; }
+    button:hover,a:hover { background:rgba(27,86,132,.92); }
+    .hint { color:var(--muted); text-align:right; font-size:12px; }
+    @media(max-width:650px){.top,.bottom{flex-direction:column}.note,.hint{width:auto;text-align:left}}
+  </style>
+</head>
+<body>
+  <canvas id="scene" aria-label="Ares RB-08 概念摩托车的 Three.js 风格化重建"></canvas>
+  <div class="hud">
+    <div class="top">
+      <div><div class="eyebrow">img2threejs · image reconstruction pass</div><h1>Ares RB-08</h1></div>
+      <div class="note"><b id="state">● WEBGL BOOTING</b><span id="note-text">单张参考图重建：正面三分之四视角特征已实现；背面、底部与机械连接为风格化推断。</span></div>
+    </div>
+    <div class="bottom">
+      <div class="controls"><button id="engine">启动引擎</button><button id="spin">暂停自转</button><a href="../index.html">← 返回说明页</a></div>
+      <div class="hint">拖动：旋转视角<br>滚轮/双指：缩放</div>
+    </div>
+  </div>
+  <script>
+    const stateLabel = document.querySelector('#state');
+    addEventListener('error', (event) => { stateLabel.textContent = '● WEBGL ERROR'; document.querySelector('#note-text').textContent = event.message || '浏览器无法启动 WebGL Demo'; });
+    addEventListener('unhandledrejection', (event) => { stateLabel.textContent = '● WEBGL ERROR'; document.querySelector('#note-text').textContent = event.reason?.message || '浏览器无法启动 WebGL Demo'; });
+  </script>
+  <script type="module">
+    import * as THREE from '../assets/vendor/three.module.min.js';
+
+    const canvas = document.querySelector('#scene');
+    const renderer = new THREE.WebGLRenderer({canvas,antialias:true});
+    renderer.setPixelRatio(Math.min(devicePixelRatio,2)); renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap; renderer.outputColorSpace=THREE.SRGBColorSpace;
+    stateLabel.textContent = '● WEBGL READY';
+    if (window.parent !== window) window.parent.postMessage({ type: 'img2threejs-ready', example: 'bike' }, '*');
+    const scene = new THREE.Scene(); scene.background=new THREE.Color(0x05070d); scene.fog=new THREE.Fog(0x05070d,15,37);
+    const camera = new THREE.PerspectiveCamera(42,1,.1,100);
+    scene.add(new THREE.HemisphereLight(0x8bbfff,0x05070d,2.4));
+    const key=new THREE.DirectionalLight(0xffffff,4.2); key.position.set(-5,9,7); key.castShadow=true; key.shadow.mapSize.set(1024,1024); scene.add(key);
+    const redFill=new THREE.PointLight(0xff2d40,10,12,2); redFill.position.set(-1,3,-3); scene.add(redFill);
+    const cyanFill=new THREE.PointLight(0x29baff,8,14,2); cyanFill.position.set(5,4,4); scene.add(cyanFill);
+    const floor=new THREE.Mesh(new THREE.CircleGeometry(13,72),new THREE.MeshStandardMaterial({color:0x0a111e,roughness:.82,metalness:.08})); floor.rotation.x=-Math.PI/2; floor.receiveShadow=true; scene.add(floor);
+    const grid=new THREE.GridHelper(26,26,0x193e62,0x0c233a); grid.position.y=.01; scene.add(grid);
+
+    const bike=new THREE.Group(); bike.rotation.y=-.32; scene.add(bike);
+    const matte=new THREE.MeshStandardMaterial({color:0x101723,roughness:.43,metalness:.58});
+    const black=new THREE.MeshStandardMaterial({color:0x05070b,roughness:.28,metalness:.7});
+    const blue=new THREE.MeshStandardMaterial({color:0x13243e,roughness:.31,metalness:.6});
+    const red=new THREE.MeshStandardMaterial({color:0xb70d21,emissive:0x4e0005,emissiveIntensity:.7,roughness:.2,metalness:.55});
+    const glow=new THREE.MeshStandardMaterial({color:0xff3947,emissive:0xff0714,emissiveIntensity:3,roughness:.16,metalness:.22});
+    const glass=new THREE.MeshPhysicalMaterial({color:0xb7d7e8,roughness:.12,metalness:.05,transparent:true,opacity:.38,transmission:.2,side:THREE.DoubleSide});
+    const rubber=new THREE.MeshStandardMaterial({color:0x090a0d,roughness:.68,metalness:.12});
+    const add=(parent,geo,mat,pos=[0,0,0],rot=[0,0,0])=>{const m=new THREE.Mesh(geo,mat);m.position.set(...pos);m.rotation.set(...rot);m.castShadow=m.receiveShadow=true;parent.add(m);return m;};
+    const box=(parent,s,mat,p,r=[0,0,0])=>add(parent,new THREE.BoxGeometry(...s),mat,p,r);
+    const cyl=(parent,rt,rb,h,mat,p,r=[0,0,0],seg=24)=>add(parent,new THREE.CylinderGeometry(rt,rb,h,seg),mat,p,r);
+    const tube=(parent,points,radius,mat)=>{const curve=new THREE.CatmullRomCurve3(points.map(v=>new THREE.Vector3(...v)));return add(parent,new THREE.TubeGeometry(curve,28,radius,10,false),mat);};
+
+    const wheel=(x,scale=1)=>{
+      const g=new THREE.Group();g.position.set(x,1.22,0);bike.add(g);
+      const tire=add(g,new THREE.TorusGeometry(1.04*scale,.24*scale,16,42),rubber);
+      const rim=add(g,new THREE.TorusGeometry(.76*scale,.095*scale,12,36),matte);
+      const redRing=add(g,new THREE.TorusGeometry(.67*scale,.045*scale,10,36),red);
+      const disc=cyl(g,.53*scale,.53*scale,.12,blue,[0,0,.07],[Math.PI/2,0,0]);
+      const hub=cyl(g,.18*scale,.18*scale,.18,black,[0,0,.13],[Math.PI/2,0,0]);
+      for(let i=0;i<6;i++){const a=i*Math.PI/3;const spoke=box(g,[.08,.05,.65*scale],matte,[Math.cos(a)*.35*scale,Math.sin(a)*.35*scale,.08],[0,0,a-Math.PI/2]);}
+      return {g,tire,rim,redRing,disc,hub};
+    };
+    const front=wheel(-2.55,1.08), rear=wheel(2.1,.86);
+    const frame=new THREE.Group(); bike.add(frame);
+    tube(frame,[[-2.5,1.55,0],[-1.35,2.35,0],[.6,2.12,0],[2.1,1.48,0]],.09,matte);
+    tube(frame,[[-1.35,2.35,0],[.2,1.45,0],[2.1,1.48,0]],.08,blue);
+    tube(frame,[[-.15,1.4,-.14],[1.2,1.56,-.16],[2.15,1.45,-.1]],.065,black);
+    const body=new THREE.Group(); bike.add(body);
+    box(body,[2.65,.7,1.28],black,[-.4,2.35,0],[0,.1,0]);
+    box(body,[1.82,.52,1.4],blue,[.7,2.1,0],[0,-.14,0]);
+    box(body,[1.42,.28,1.12],matte,[.46,2.7,0],[0,-.05,0]);
+    box(body,[1.15,.36,1.18],black,[1.55,2.35,0],[0,-.2,0]);
+    box(body,[1.25,.2,1.08],black,[.18,3.02,0],[0,-.13,0]);
+    box(body,[.7,.38,1.5],black,[-1.65,2.6,0],[0,.28,0]);
+    const sideL=box(body,[1.9,.92,.08],matte,[.02,2.2,.72],[0,-.26,0]);
+    const sideR=box(body,[1.9,.92,.08],matte,[.02,2.2,-.72],[0,-.26,0]);
+    box(body,[.58,.82,.1],red,[-.66,2.28,.78],[0,-.26,0]); box(body,[.58,.82,.1],red,[-.66,2.28,-.78],[0,-.26,0]);
+    const wind=box(body,[.12,1.55,1.42],glass,[-1.4,3.55,0],[0,0,.28]); wind.rotation.z=-.42;
+    const visor=box(body,[.15,.32,1.5],black,[-1.7,2.95,0],[0,0,.2]);
+    const head=new THREE.Group();head.position.set(-1.75,2.55,0);bike.add(head);
+    const ring=add(head,new THREE.TorusGeometry(.48,.085,12,36),red,[0,0,.72],[Math.PI/2,0,0]);
+    const core=cyl(head,.36,.36,.14,black,[0,0,.73],[Math.PI/2,0,0]);
+    for(let i=0;i<3;i++){const fin=box(head,[.62,.11,.1],matte,[0,0,.84],[0,0,i*Math.PI/3]);}
+    const emblem=add(head,new THREE.OctahedronGeometry(.14,0),glow,[0,0,.92]);
+    const steering=new THREE.Group(); steering.position.set(-1.92,3.02,0);bike.add(steering);
+    tube(steering,[[0,0,0],[-.28,.36,.36],[.1,.48,.74]],.06,matte); tube(steering,[[0,0,0],[-.28,.36,-.36],[.1,.48,-.74]],.06,matte);
+    box(steering,[.62,.1,.1],black,[.1,.48,.74],[0,0,.18]); box(steering,[.62,.1,.1],black,[.1,.48,-.74],[0,0,-.18]);
+    const tail=new THREE.Group();tail.position.set(2.25,2.14,0);bike.add(tail);
+    box(tail,[1.18,.38,.88],black,[.26,.16,0],[0,.18,0]);
+    const tailGlow=box(tail,[.18,.28,.62],glow,[.8,.22,0]);
+    tube(tail,[[.24,.2,.38],[.72,.48,.76],[1.22,.68,.82]],.07,matte); tube(tail,[[.24,.2,-.38],[.72,.48,-.76],[1.22,.68,-.82]],.07,matte);
+    const runtime={yaw:-.62,pitch:.15,distance:10.8,spin:true,engine:false,wheels:[front,rear]};bike.userData.sculptRuntime=runtime;
+    let dragging=false,lastX=0,lastY=0;
+    canvas.addEventListener('pointerdown',e=>{dragging=true;lastX=e.clientX;lastY=e.clientY;canvas.setPointerCapture(e.pointerId)});
+    canvas.addEventListener('pointermove',e=>{if(!dragging)return;runtime.yaw+=(e.clientX-lastX)*.008;runtime.pitch=THREE.MathUtils.clamp(runtime.pitch+(e.clientY-lastY)*.008,-.62,.45);lastX=e.clientX;lastY=e.clientY});
+    canvas.addEventListener('pointerup',()=>dragging=false);
+    canvas.addEventListener('wheel',e=>runtime.distance=THREE.MathUtils.clamp(runtime.distance+e.deltaY*.008,6.8,17),{passive:true});
+    document.querySelector('#spin').addEventListener('click',e=>{runtime.spin=!runtime.spin;e.currentTarget.textContent=runtime.spin?'暂停自转':'开启自转'});
+    document.querySelector('#engine').addEventListener('click',e=>{runtime.engine=!runtime.engine;e.currentTarget.textContent=runtime.engine?'关闭引擎':'启动引擎';document.querySelector('#note-text').textContent=runtime.engine?'引擎已启动：轮组、红环和尾部能源核心进入动画状态。':'单张参考图重建：正面三分之四视角特征已实现；背面、底部与机械连接为风格化推断。'});
+    addEventListener('message',event=>{if(event.data?.action==='bike-engine')document.querySelector('#engine').click();if(event.data?.action==='spin-toggle')document.querySelector('#spin').click()});
+    function resize(){const {clientWidth:w,clientHeight:h}=canvas;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()} addEventListener('resize',resize);resize();
+    const clock=new THREE.Clock();function render(){requestAnimationFrame(render);const dt=clock.getDelta(),t=clock.elapsedTime;if(runtime.spin&&!dragging)runtime.yaw+=dt*.16;const h=runtime.distance*Math.cos(runtime.pitch);camera.position.set(h*Math.sin(runtime.yaw),2.35+runtime.distance*Math.sin(runtime.pitch),h*Math.cos(runtime.yaw));camera.lookAt(0,1.95,0);const speed=runtime.engine?dt*7:dt*.22;for(const w of runtime.wheels){w.g.rotation.z-=speed;w.redRing.material.emissiveIntensity=runtime.engine?1.8:.7}emblem.rotation.y+=dt*1.8;emblem.material.emissiveIntensity=runtime.engine?4:2.4;tailGlow.material.emissiveIntensity=runtime.engine?4:2.2;bike.position.y=runtime.engine?Math.sin(t*5)*.035:0;renderer.render(scene,camera)} render();
+  </script>
+</body>
+</html>
