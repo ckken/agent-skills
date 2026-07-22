@@ -4,6 +4,10 @@
 
 把一张参考图转成可运行、可动画、可交互的程序化 Three.js 游戏资产。
 
+## 在线体验
+
+[打开 Cloudflare Pages WebGL Demo](https://img2threejs-demo.pages.dev/demo?model=bike)
+
 这个 Skill 适合游戏原型、网页 3D、道具重建、角色草模、可破坏物件和材质研究。它要求
 Agent 先判断图片是否适合 3D 重建，再建立细节清单和 `SculptSpec`，按 blockout → 结构 →
 形体 → 材质 → 灯光 → 交互 → 优化逐阶段生成 TypeScript `THREE.Group` 工厂，并用浏览器
