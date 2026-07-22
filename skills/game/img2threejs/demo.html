@@ -58,7 +58,7 @@
       chest: { title:'Procedural Loot Chest', meta:'材质、lid pivot、发光锁芯', src:'demos/chest.html', action:'切换宝箱开合', command:'chest-toggle' },
       bike: { title:'Ares RB-08', meta:'附件参考图的风格化摩托重建', src:'demos/bike.html', action:'切换摩托引擎', command:'bike-engine' },
     };
-    const frame = document.querySelector('#preview'); const verified = new Set(); let loadToken = 0; let active = new URLSearchParams(location.search).get('model') === 'bike' ? 'bike' : 'chest';
+    const frame = document.querySelector('#preview'); const verified = new Set(); let active = new URLSearchParams(location.search).get('model') === 'bike' ? 'bike' : 'chest';
     const refreshSummary = () => document.querySelector('#summary').textContent = `已验证 ${verified.size} / 2 个模型`;
     const updateThumbs = () => document.querySelectorAll('.thumb').forEach(button => button.classList.toggle('active', button.dataset.example === active));
     function load(name) {
@@ -66,8 +66,7 @@
       document.querySelector('#model-title').textContent = entry.title; document.querySelector('#model-meta').textContent = entry.meta; document.querySelector('#action').textContent = entry.action; document.querySelector('#direct').href = entry.src;
       const status = document.querySelector('#status'); status.textContent = '● LOADING'; status.classList.remove('ready');
       document.querySelector(`#${name}-ready`).textContent = '加载中'; updateThumbs();
-      const token = ++loadToken; frame.src = 'about:blank';
-      requestAnimationFrame(() => requestAnimationFrame(() => { if (token === loadToken) frame.src = `${entry.src}?instance=${Date.now()}`; }));
+      frame.src = `${entry.src}?instance=${Date.now()}`;
     }
     function send(action) { frame.contentWindow.postMessage({ action }, location.origin); }
     document.querySelectorAll('.thumb').forEach(button => button.addEventListener('click', () => load(button.dataset.example)));

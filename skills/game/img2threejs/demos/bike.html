@@ -30,7 +30,7 @@
   <div class="hud">
     <div class="top">
       <div><div class="eyebrow">img2threejs · high fidelity reconstruction</div><h1>Ares RB-08</h1></div>
-      <div class="note"><b id="state">● WEBGPU BOOTING</b><span id="note-text">参考视角优先：轮组比例、透明风罩、侧梁红环、装甲层级与双排气管均按附件重建。</span></div>
+      <div class="note"><b id="state">● WEBGL BOOTING</b><span id="note-text">参考视角优先：轮组比例、透明风罩、侧梁红环、装甲层级与双排气管均按附件重建。</span></div>
     </div>
     <div class="bottom">
       <div class="controls"><button id="reset">参考视角</button><button id="compare">显示参考图</button><button id="engine">启动引擎</button><button id="spin">开启自转</button><a href="../index.html">← 返回</a></div>
@@ -46,15 +46,12 @@
     import * as THREE from '../assets/vendor/three.module.min.js';
 
     const canvas=document.querySelector('#scene');
-    let renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false});
-    let backend='WEBGL FALLBACK';
+    const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false});
+    const backend='WEBGL';
     const configureRenderer=current=>{current.setPixelRatio(Math.min(devicePixelRatio,2));current.shadowMap.enabled=true;current.shadowMap.type=THREE.PCFSoftShadowMap;current.outputColorSpace=THREE.SRGBColorSpace;current.toneMapping=THREE.ACESFilmicToneMapping;current.toneMappingExposure=1.12};
     configureRenderer(renderer);
-    const within=(promise,label)=>Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>reject(new Error(`${label} timed out`)),2500))]);
     stateLabel.textContent=`● ${backend} READY`;
     if(window.parent!==window)window.parent.postMessage({type:'img2threejs-ready',example:'bike',backend},'*');
-    const upgradeToWebGPU=async()=>{if(!isSecureContext||!navigator.gpu)return;try{const {WebGPURenderer}=await import('../assets/vendor/three.webgpu.min.js');const adapter=await within(navigator.gpu.requestAdapter({powerPreference:'high-performance'}),'WebGPU adapter request');if(!adapter)throw new Error('WebGPU adapter unavailable');const device=await within(adapter.requestDevice(),'WebGPU device request');const gpuRenderer=new WebGPURenderer({canvas,antialias:true,device});await within(gpuRenderer.init(),'WebGPU renderer initialization');renderer.dispose();renderer=gpuRenderer;configureRenderer(renderer);backend='WEBGPU';stateLabel.textContent=`● ${backend} READY`;if(window.parent!==window)window.parent.postMessage({type:'img2threejs-ready',example:'bike',backend},'*')}catch(error){/* WebGL keeps the demo usable on unsupported clients. */}};
-    setTimeout(upgradeToWebGPU,0);
 
     const scene=new THREE.Scene();scene.background=new THREE.Color(0x343638);scene.fog=new THREE.Fog(0x343638,16,32);
     const camera=new THREE.PerspectiveCamera(36,1,.1,100);

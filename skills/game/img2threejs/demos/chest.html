@@ -30,7 +30,7 @@
   <div class="hud">
     <div class="top">
       <div><div class="label">img2threejs · local webgl demo</div><h1>Procedural Loot Chest</h1></div>
-      <div class="status"><b id="state">● WEBGPU BOOTING</b>程序化几何 · lid pivot · emissive gem · WebGPU 优先</div>
+      <div class="status"><b id="state">● WEBGL BOOTING</b>程序化几何 · lid pivot · emissive gem · WebGL</div>
     </div>
     <div class="bottom">
       <div class="controls"><button id="toggle">打开宝箱</button><button id="spin">暂停自转</button><a class="back" href="../index.html">← 返回说明页</a></div>
@@ -52,8 +52,8 @@
     import * as THREE from '../assets/vendor/three.module.min.js';
 
     const canvas = document.querySelector('#scene');
-    let renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
-    let backend = 'WEBGL FALLBACK';
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+    const backend = 'WEBGL';
     const configureRenderer = (current) => {
       current.setPixelRatio(Math.min(devicePixelRatio, 2));
       current.shadowMap.enabled = true;
@@ -61,27 +61,8 @@
       current.outputColorSpace = THREE.SRGBColorSpace;
     };
     configureRenderer(renderer);
-    const within = (promise, label) => Promise.race([
-      promise,
-      new Promise((_, reject) => setTimeout(() => reject(new Error(`${label} timed out`)), 2500)),
-    ]);
     stateLabel.textContent = `● ${backend} READY`;
     if (window.parent !== window) window.parent.postMessage({ type: 'img2threejs-ready', example: 'chest', backend }, '*');
-    const upgradeToWebGPU = async () => {
-      if (!isSecureContext || !navigator.gpu) return;
-      try {
-        const { WebGPURenderer } = await import('../assets/vendor/three.webgpu.min.js');
-        const adapter = await within(navigator.gpu.requestAdapter({ powerPreference: 'high-performance' }), 'WebGPU adapter request');
-        if (!adapter) throw new Error('WebGPU adapter unavailable');
-        const device = await within(adapter.requestDevice(), 'WebGPU device request');
-        const gpuRenderer = new WebGPURenderer({ canvas, antialias: true, alpha: false, device });
-        await within(gpuRenderer.init(), 'WebGPU renderer initialization');
-        renderer.dispose(); renderer = gpuRenderer; configureRenderer(renderer); backend = 'WEBGPU';
-        stateLabel.textContent = `● ${backend} READY`;
-        if (window.parent !== window) window.parent.postMessage({ type: 'img2threejs-ready', example: 'chest', backend }, '*');
-      } catch (error) { /* Keep the already-rendering WebGL fallback. */ }
-    };
-    setTimeout(upgradeToWebGPU, 0);
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x050b18);
