@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="img2threejs 本地 Three.js 游戏道具 Demo。">
+  <title>img2threejs · Live Chest Demo</title>
+  <style>
+    :root { color-scheme: dark; --cyan: #64dfff; --gold: #f2b85b; --muted: #a9bdd2; }
+    * { box-sizing: border-box; }
+    body { margin: 0; overflow: hidden; background: #050b18; color: #f0f7ff; font: 14px/1.5 Inter, ui-sans-serif, system-ui, sans-serif; }
+    canvas { display: block; width: 100vw; height: 100vh; touch-action: none; }
+    .hud { position: fixed; inset: 0; pointer-events: none; padding: clamp(18px, 3vw, 38px); display: flex; flex-direction: column; justify-content: space-between; }
+    .top { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; }
+    .label { color: var(--gold); font-size: 12px; font-weight: 750; letter-spacing: .14em; text-transform: uppercase; }
+    h1 { margin: 5px 0 0; font-size: clamp(25px, 4vw, 44px); line-height: 1; letter-spacing: -.04em; }
+    .status { max-width: 260px; border: 1px solid rgba(112, 205, 255, .25); border-radius: 12px; padding: 12px 14px; background: rgba(5, 15, 34, .72); color: var(--muted); }
+    .status b { display: block; color: #7be9ad; font-size: 12px; letter-spacing: .09em; }
+    .bottom { display: flex; justify-content: space-between; align-items: flex-end; gap: 18px; }
+    .controls { display: flex; flex-wrap: wrap; gap: 9px; pointer-events: auto; }
+    button, .back { border: 1px solid rgba(99, 216, 255, .35); border-radius: 999px; padding: 10px 14px; color: #eef8ff; background: rgba(10, 37, 68, .78); font: inherit; font-weight: 650; cursor: pointer; }
+    button:hover, .back:hover { background: rgba(24, 93, 145, .9); }
+    .back { pointer-events: auto; color: var(--cyan); text-decoration: none; }
+    .hint { color: var(--muted); text-align: right; font-size: 12px; }
+    @media (max-width: 650px) { .top, .bottom { flex-direction: column; } .status, .hint { text-align: left; } }
+  </style>
+</head>
+<body>
+  <canvas id="scene" aria-label="可交互的 Three.js 宝箱模型"></canvas>
+  <div class="hud">
+    <div class="top">
+      <div><div class="label">img2threejs · local webgl demo</div><h1>Procedural Loot Chest</h1></div>
+      <div class="status"><b id="state">● WEBGL BOOTING</b>程序化几何 · lid pivot · emissive gem · 本地 Three.js 模块</div>
+    </div>
+    <div class="bottom">
+      <div class="controls"><button id="toggle">打开宝箱</button><button id="spin">暂停自转</button><a class="back" href="index.html">← 返回说明页</a></div>
+      <div class="hint">拖动：旋转视角<br>滚轮/双指：缩放</div>
+    </div>
+  </div>
+  <script>
+    const stateLabel = document.querySelector('#state');
+    addEventListener('error', (event) => {
+      stateLabel.textContent = '● WEBGL ERROR';
+      stateLabel.parentElement.lastChild.textContent = `浏览器无法启动 Demo：${event.message || '未知错误'}`;
+    });
+    addEventListener('unhandledrejection', (event) => {
+      stateLabel.textContent = '● WEBGL ERROR';
+      stateLabel.parentElement.lastChild.textContent = `浏览器无法启动 Demo：${event.reason?.message || '未知错误'}`;
+    });
+  </script>
+  <script type="module">
+    import * as THREE from './assets/vendor/three.module.min.js';
+
+    const canvas = document.querySelector('#scene');
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    stateLabel.textContent = '● WEBGL READY';
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x050b18);
+    scene.fog = new THREE.Fog(0x050b18, 12, 28);
+    const camera = new THREE.PerspectiveCamera(42, 1, .1, 100);
+    camera.position.set(7.4, 5.2, 8.5);
+
+    const hemi = new THREE.HemisphereLight(0x6caeff, 0x090d17, 2.1);
+    scene.add(hemi);
+    const key = new THREE.DirectionalLight(0xffd49a, 4.2);
+    key.position.set(5, 7, 4); key.castShadow = true; key.shadow.mapSize.set(1024, 1024); scene.add(key);
+    const rim = new THREE.PointLight(0x31c5ff, 18, 15, 2);
+    rim.position.set(-4, 3, -4); scene.add(rim);
+    const ground = new THREE.Mesh(new THREE.CircleGeometry(8, 64), new THREE.MeshStandardMaterial({ color: 0x071425, roughness: .78, metalness: .15 }));
+    ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
+    const grid = new THREE.GridHelper(16, 16, 0x1c5a82, 0x12324c); grid.position.y = .012; scene.add(grid);
+
+    const model = new THREE.Group(); scene.add(model);
+    const wood = new THREE.MeshStandardMaterial({ color: 0x173867, roughness: .38, metalness: .08 });
+    const woodDark = new THREE.MeshStandardMaterial({ color: 0x0d2040, roughness: .55 });
+    const gold = new THREE.MeshStandardMaterial({ color: 0xc9872c, roughness: .24, metalness: .86 });
+    const gem = new THREE.MeshStandardMaterial({ color: 0x38ceff, emissive: 0x0679d6, emissiveIntensity: 2.5, roughness: .17, metalness: .25 });
+    const addBox = (parent, size, pos, mat, bevel = 0) => {
+      const geo = new THREE.BoxGeometry(...size, bevel ? 2 : 1, bevel ? 2 : 1, bevel ? 2 : 1);
+      const mesh = new THREE.Mesh(geo, mat); mesh.position.set(...pos); mesh.castShadow = mesh.receiveShadow = true; parent.add(mesh); return mesh;
+    };
+    const base = new THREE.Group(); model.add(base);
+    addBox(base, [5.2, 2.7, 3.5], [0, 1.58, 0], wood);
+    addBox(base, [5.45, .34, 3.75], [0, .38, 0], gold);
+    addBox(base, [5.45, .28, 3.75], [0, 2.78, 0], gold);
+    for (const x of [-2.3, 2.3]) { addBox(base, [.36, 2.65, 3.72], [x, 1.6, 0], gold); addBox(base, [.72, .42, .72], [x, .2, 1.45], gold); addBox(base, [.72, .42, .72], [x, .2, -1.45], gold); }
+    for (const y of [1.02, 1.72, 2.42]) addBox(base, [4.4, .075, .11], [0, y, 1.78], woodDark);
+    const front = new THREE.Group(); front.position.set(0, 1.55, 1.86); base.add(front);
+    const gemFrame = new THREE.Mesh(new THREE.CylinderGeometry(.63, .63, .16, 4), gold); gemFrame.rotation.z = Math.PI / 4; gemFrame.rotation.x = Math.PI / 2; gemFrame.castShadow = true; front.add(gemFrame);
+    const jewel = new THREE.Mesh(new THREE.OctahedronGeometry(.36, 0), gem); jewel.rotation.z = Math.PI / 4; jewel.position.z = .12; front.add(jewel);
+    const lockLight = new THREE.PointLight(0x25bfff, 4.5, 4, 2); lockLight.position.set(0, 0, .65); front.add(lockLight);
+    const lidPivot = new THREE.Group(); lidPivot.position.set(0, 2.9, -1.56); model.add(lidPivot);
+    const lid = new THREE.Group(); lidPivot.add(lid);
+    addBox(lid, [5.25, 1.65, 3.45], [0, .72, 1.58], wood);
+    for (const x of [-2.28, 2.28]) { const band = addBox(lid, [.38, 1.9, 3.66], [x, .74, 1.58], gold); band.rotation.z = x < 0 ? -.08 : .08; }
+    addBox(lid, [5.45, .32, 3.75], [0, .04, 1.58], gold);
+    for (const z of [.55, 1.55, 2.55]) addBox(lid, [4.3, .075, .11], [0, 1.35, z], woodDark);
+    const hinge = new THREE.Mesh(new THREE.CylinderGeometry(.16, .16, 4.25, 18), gold); hinge.rotation.z = Math.PI / 2; hinge.position.set(0, .04, .02); lidPivot.add(hinge);
+    const runtime = { pivot: lidPivot, open: false, target: 0, spin: true, yaw: .62, pitch: .18, distance: 11.2 };
+    model.userData.sculptRuntime = runtime;
+
+    const ray = new THREE.Raycaster(); const mouse = new THREE.Vector2();
+    let dragging = false, lastX = 0, lastY = 0;
+    canvas.addEventListener('pointerdown', (event) => { dragging = true; lastX = event.clientX; lastY = event.clientY; canvas.setPointerCapture(event.pointerId); });
+    canvas.addEventListener('pointermove', (event) => { if (!dragging) return; runtime.yaw += (event.clientX - lastX) * .009; runtime.pitch = THREE.MathUtils.clamp(runtime.pitch + (event.clientY - lastY) * .008, -.78, .45); lastX = event.clientX; lastY = event.clientY; });
+    canvas.addEventListener('pointerup', () => { dragging = false; });
+    canvas.addEventListener('wheel', (event) => { runtime.distance = THREE.MathUtils.clamp(runtime.distance + event.deltaY * .008, 7, 18); }, { passive: true });
+    document.querySelector('#toggle').addEventListener('click', () => { runtime.open = !runtime.open; runtime.target = runtime.open ? -1.18 : 0; document.querySelector('#toggle').textContent = runtime.open ? '关闭宝箱' : '打开宝箱'; });
+    document.querySelector('#spin').addEventListener('click', () => { runtime.spin = !runtime.spin; document.querySelector('#spin').textContent = runtime.spin ? '暂停自转' : '开启自转'; });
+    function resize() { const { clientWidth: w, clientHeight: h } = canvas; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
+    addEventListener('resize', resize); resize();
+    const clock = new THREE.Clock();
+    function frame() {
+      requestAnimationFrame(frame); const dt = clock.getDelta();
+      if (runtime.spin && !dragging) runtime.yaw += dt * .19;
+      lidPivot.rotation.x += (runtime.target - lidPivot.rotation.x) * Math.min(1, dt * 8);
+      jewel.rotation.y += dt * 1.2; jewel.position.z = .12 + Math.sin(clock.elapsedTime * 2.3) * .025;
+      const horizontal = runtime.distance * Math.cos(runtime.pitch);
+      camera.position.set(
+        horizontal * Math.sin(runtime.yaw),
+        1.85 + runtime.distance * Math.sin(runtime.pitch),
+        horizontal * Math.cos(runtime.yaw),
+      );
+      camera.lookAt(0, 1.65, 0);
+      renderer.render(scene, camera);
+    }
+    try { frame(); } catch (error) { document.querySelector('#state').textContent = '● WEBGL ERROR'; console.error(error); }
+  </script>
+</body>
+</html>
