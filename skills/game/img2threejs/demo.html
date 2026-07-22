@@ -66,8 +66,9 @@
     document.querySelector('#spin').addEventListener('click', () => send('spin-toggle'));
     addEventListener('message', event => {
       if (event.origin !== location.origin || event.data?.type !== 'img2threejs-ready' || event.data.example !== active) return;
-      verified.add(active); document.querySelector('#status').textContent = '● WEBGL READY'; document.querySelector('#status').classList.add('ready');
-      document.querySelector(`#${active}-ready`).textContent = 'WEBGL READY'; refreshSummary();
+      const backend = event.data.backend;
+      verified.add(active); document.querySelector('#status').textContent = `● ${backend} READY`; document.querySelector('#status').classList.add('ready');
+      document.querySelector(`#${active}-ready`).textContent = `${backend} READY`; refreshSummary();
     });
     load(active);
   </script>
