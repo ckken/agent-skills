@@ -3,126 +3,180 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>img2threejs · Ares RB-08 Reconstruction</title>
+  <title>img2threejs · Ares RB-08 High Fidelity</title>
   <style>
-    :root { color-scheme: dark; --cyan:#68e0ff; --red:#ff4b53; --muted:#aebed2; }
-    * { box-sizing: border-box; }
-    body { margin:0; overflow:hidden; background:#05070d; color:#f4f7ff; font:14px/1.5 Inter,ui-sans-serif,system-ui,sans-serif; }
+    :root { color-scheme:dark; --red:#ff4050; --cyan:#9bdcf1; --muted:#bec5ce; }
+    * { box-sizing:border-box; }
+    body { margin:0; overflow:hidden; background:#292b2d; color:#f7f7f8; font:13px/1.45 Inter,ui-sans-serif,system-ui,sans-serif; }
     canvas { display:block; width:100vw; height:100vh; touch-action:none; }
-    .hud { position:fixed; inset:0; padding:clamp(18px,3vw,38px); display:flex; flex-direction:column; justify-content:space-between; pointer-events:none; }
+    .hud { position:fixed; z-index:2; inset:0; padding:clamp(16px,2.4vw,30px); display:flex; flex-direction:column; justify-content:space-between; pointer-events:none; }
     .top,.bottom { display:flex; justify-content:space-between; gap:18px; align-items:flex-start; }
-    .eyebrow { color:var(--red); font-size:12px; font-weight:800; letter-spacing:.13em; text-transform:uppercase; }
-    h1 { margin:5px 0 0; font-size:clamp(27px,4vw,46px); letter-spacing:-.045em; line-height:1; }
-    .note { width:min(310px,45vw); border:1px solid rgba(102,224,255,.25); border-radius:13px; padding:12px 14px; background:rgba(6,12,25,.76); color:var(--muted); }
-    .note b { display:block; color:#7de9ad; letter-spacing:.08em; font-size:12px; }
-    .controls { display:flex; flex-wrap:wrap; gap:9px; pointer-events:auto; }
-    button,a { border:1px solid rgba(104,224,255,.34); border-radius:999px; padding:10px 14px; background:rgba(11,35,61,.8); color:#f4f7ff; font:inherit; font-weight:700; text-decoration:none; cursor:pointer; }
-    button:hover,a:hover { background:rgba(27,86,132,.92); }
-    .hint { color:var(--muted); text-align:right; font-size:12px; }
-    @media(max-width:650px){.top,.bottom{flex-direction:column}.note,.hint{width:auto;text-align:left}}
+    .eyebrow { color:var(--red); font-size:11px; font-weight:850; letter-spacing:.14em; text-transform:uppercase; }
+    h1 { margin:4px 0 0; font-size:clamp(26px,3.8vw,44px); letter-spacing:-.045em; line-height:1; text-shadow:0 2px 18px #0008; }
+    .note { width:min(345px,46vw); border:1px solid #ffffff24; border-radius:12px; padding:10px 13px; background:#17191dcc; color:var(--muted); backdrop-filter:blur(10px); }
+    .note b { display:block; color:#92edb7; letter-spacing:.08em; font-size:11px; }
+    .controls { display:flex; flex-wrap:wrap; gap:8px; pointer-events:auto; }
+    button,a { border:1px solid #ffffff32; border-radius:999px; padding:9px 13px; background:#17191ddd; color:#fff; font:inherit; font-weight:750; text-decoration:none; cursor:pointer; }
+    button:hover,a:hover { background:#3c424c; }
+    .hint { padding:8px 11px; border-radius:10px; background:#17191db0; color:var(--muted); text-align:right; font-size:11px; }
+    .reference { position:fixed; z-index:3; right:clamp(16px,2.4vw,30px); top:50%; width:min(36vw,520px); transform:translateY(-50%) scale(.97); border:1px solid #ffffff44; border-radius:12px; box-shadow:0 20px 60px #000b; opacity:0; visibility:hidden; transition:.2s; pointer-events:none; }
+    .reference.show { opacity:1; visibility:visible; transform:translateY(-50%) scale(1); }
+    @media(max-width:650px){.top,.bottom{flex-direction:column}.note,.hint{width:auto;text-align:left}.reference{width:56vw;right:12px}}
   </style>
 </head>
 <body>
-  <canvas id="scene" aria-label="Ares RB-08 概念摩托车的 Three.js 风格化重建"></canvas>
+  <canvas id="scene" aria-label="Ares RB-08 概念摩托车高精度 Three.js 重建"></canvas>
+  <img class="reference" id="reference" src="../assets/references/ares-rb08.webp" alt="Ares RB-08 原始参考图">
   <div class="hud">
     <div class="top">
-      <div><div class="eyebrow">img2threejs · image reconstruction pass</div><h1>Ares RB-08</h1></div>
-      <div class="note"><b id="state">● WEBGPU BOOTING</b><span id="note-text">单张参考图重建：正面三分之四视角特征已实现；背面、底部与机械连接为风格化推断。</span></div>
+      <div><div class="eyebrow">img2threejs · high fidelity reconstruction</div><h1>Ares RB-08</h1></div>
+      <div class="note"><b id="state">● WEBGPU BOOTING</b><span id="note-text">参考视角优先：轮组比例、透明风罩、侧梁红环、装甲层级与双排气管均按附件重建。</span></div>
     </div>
     <div class="bottom">
-      <div class="controls"><button id="engine">启动引擎</button><button id="spin">暂停自转</button><a href="../index.html">← 返回说明页</a></div>
-      <div class="hint">拖动：旋转视角<br>滚轮/双指：缩放</div>
+      <div class="controls"><button id="reset">参考视角</button><button id="compare">显示参考图</button><button id="engine">启动引擎</button><button id="spin">开启自转</button><a href="../index.html">← 返回</a></div>
+      <div class="hint">拖动旋转 · 滚轮缩放<br>单图不可见的背面与底部为对称推断</div>
     </div>
   </div>
   <script>
-    const stateLabel = document.querySelector('#state');
-    addEventListener('error', (event) => { stateLabel.textContent = '● WEBGL ERROR'; document.querySelector('#note-text').textContent = event.message || '浏览器无法启动 WebGL Demo'; });
-    addEventListener('unhandledrejection', (event) => { stateLabel.textContent = '● WEBGL ERROR'; document.querySelector('#note-text').textContent = event.reason?.message || '浏览器无法启动 WebGL Demo'; });
+    const stateLabel=document.querySelector('#state');
+    addEventListener('error',event=>{stateLabel.textContent='● RENDER ERROR';document.querySelector('#note-text').textContent=event.message||'浏览器无法启动渲染。'});
+    addEventListener('unhandledrejection',event=>{stateLabel.textContent='● RENDER ERROR';document.querySelector('#note-text').textContent=event.reason?.message||'浏览器无法启动渲染。'});
   </script>
   <script type="module">
     import * as THREE from '../assets/vendor/three.module.min.js';
 
-    const canvas = document.querySelector('#scene');
-    let renderer = new THREE.WebGLRenderer({canvas,antialias:true}); let backend='WEBGL FALLBACK';
-    const configureRenderer=current=>{current.setPixelRatio(Math.min(devicePixelRatio,2));current.shadowMap.enabled=true;current.shadowMap.type=THREE.PCFSoftShadowMap;current.outputColorSpace=THREE.SRGBColorSpace};
+    const canvas=document.querySelector('#scene');
+    let renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false});
+    let backend='WEBGL FALLBACK';
+    const configureRenderer=current=>{current.setPixelRatio(Math.min(devicePixelRatio,2));current.shadowMap.enabled=true;current.shadowMap.type=THREE.PCFSoftShadowMap;current.outputColorSpace=THREE.SRGBColorSpace;current.toneMapping=THREE.ACESFilmicToneMapping;current.toneMappingExposure=1.12};
     configureRenderer(renderer);
     const within=(promise,label)=>Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>reject(new Error(`${label} timed out`)),2500))]);
     stateLabel.textContent=`● ${backend} READY`;
-    if (window.parent !== window) window.parent.postMessage({type:'img2threejs-ready',example:'bike',backend},'*');
-    const upgradeToWebGPU=async()=>{if(!isSecureContext||!navigator.gpu)return;try{const {WebGPURenderer}=await import('../assets/vendor/three.webgpu.min.js');const adapter=await within(navigator.gpu.requestAdapter({powerPreference:'high-performance'}),'WebGPU adapter request');if(!adapter)throw new Error('WebGPU adapter unavailable');const device=await within(adapter.requestDevice(),'WebGPU device request');const gpuRenderer=new WebGPURenderer({canvas,antialias:true,device});await within(gpuRenderer.init(),'WebGPU renderer initialization');renderer.dispose();renderer=gpuRenderer;configureRenderer(renderer);backend='WEBGPU';stateLabel.textContent=`● ${backend} READY`;if(window.parent!==window)window.parent.postMessage({type:'img2threejs-ready',example:'bike',backend},'*')}catch(error){/* Keep the already-rendering WebGL fallback. */}};
+    if(window.parent!==window)window.parent.postMessage({type:'img2threejs-ready',example:'bike',backend},'*');
+    const upgradeToWebGPU=async()=>{if(!isSecureContext||!navigator.gpu)return;try{const {WebGPURenderer}=await import('../assets/vendor/three.webgpu.min.js');const adapter=await within(navigator.gpu.requestAdapter({powerPreference:'high-performance'}),'WebGPU adapter request');if(!adapter)throw new Error('WebGPU adapter unavailable');const device=await within(adapter.requestDevice(),'WebGPU device request');const gpuRenderer=new WebGPURenderer({canvas,antialias:true,device});await within(gpuRenderer.init(),'WebGPU renderer initialization');renderer.dispose();renderer=gpuRenderer;configureRenderer(renderer);backend='WEBGPU';stateLabel.textContent=`● ${backend} READY`;if(window.parent!==window)window.parent.postMessage({type:'img2threejs-ready',example:'bike',backend},'*')}catch(error){/* WebGL keeps the demo usable on unsupported clients. */}};
     setTimeout(upgradeToWebGPU,0);
-    const scene = new THREE.Scene(); scene.background=new THREE.Color(0x05070d); scene.fog=new THREE.Fog(0x05070d,15,37);
-    const camera = new THREE.PerspectiveCamera(42,1,.1,100);
-    scene.add(new THREE.HemisphereLight(0x8bbfff,0x05070d,2.4));
-    const key=new THREE.DirectionalLight(0xffffff,4.2); key.position.set(-5,9,7); key.castShadow=true; key.shadow.mapSize.set(1024,1024); scene.add(key);
-    const redFill=new THREE.PointLight(0xff2d40,10,12,2); redFill.position.set(-1,3,-3); scene.add(redFill);
-    const cyanFill=new THREE.PointLight(0x29baff,8,14,2); cyanFill.position.set(5,4,4); scene.add(cyanFill);
-    const floor=new THREE.Mesh(new THREE.CircleGeometry(13,72),new THREE.MeshStandardMaterial({color:0x0a111e,roughness:.82,metalness:.08})); floor.rotation.x=-Math.PI/2; floor.receiveShadow=true; scene.add(floor);
-    const grid=new THREE.GridHelper(26,26,0x193e62,0x0c233a); grid.position.y=.01; scene.add(grid);
 
-    const bike=new THREE.Group(); bike.rotation.y=-.32; scene.add(bike);
-    const matte=new THREE.MeshStandardMaterial({color:0x101723,roughness:.43,metalness:.58});
-    const black=new THREE.MeshStandardMaterial({color:0x05070b,roughness:.28,metalness:.7});
-    const blue=new THREE.MeshStandardMaterial({color:0x13243e,roughness:.31,metalness:.6});
-    const red=new THREE.MeshStandardMaterial({color:0xb70d21,emissive:0x4e0005,emissiveIntensity:.7,roughness:.2,metalness:.55});
-    const glow=new THREE.MeshStandardMaterial({color:0xff3947,emissive:0xff0714,emissiveIntensity:3,roughness:.16,metalness:.22});
-    const glass=new THREE.MeshPhysicalMaterial({color:0xb7d7e8,roughness:.12,metalness:.05,transparent:true,opacity:.38,transmission:.2,side:THREE.DoubleSide});
-    const rubber=new THREE.MeshStandardMaterial({color:0x090a0d,roughness:.68,metalness:.12});
-    const add=(parent,geo,mat,pos=[0,0,0],rot=[0,0,0])=>{const m=new THREE.Mesh(geo,mat);m.position.set(...pos);m.rotation.set(...rot);m.castShadow=m.receiveShadow=true;parent.add(m);return m;};
-    const box=(parent,s,mat,p,r=[0,0,0])=>add(parent,new THREE.BoxGeometry(...s),mat,p,r);
-    const cyl=(parent,rt,rb,h,mat,p,r=[0,0,0],seg=24)=>add(parent,new THREE.CylinderGeometry(rt,rb,h,seg),mat,p,r);
-    const tube=(parent,points,radius,mat)=>{const curve=new THREE.CatmullRomCurve3(points.map(v=>new THREE.Vector3(...v)));return add(parent,new THREE.TubeGeometry(curve,28,radius,10,false),mat);};
+    const scene=new THREE.Scene();scene.background=new THREE.Color(0x343638);scene.fog=new THREE.Fog(0x343638,16,32);
+    const camera=new THREE.PerspectiveCamera(36,1,.1,100);
+    scene.add(new THREE.HemisphereLight(0xd7e1eb,0x262320,2.0));
+    const key=new THREE.DirectionalLight(0xfff5ec,5.4);key.position.set(-5,9,7);key.castShadow=true;key.shadow.mapSize.set(2048,2048);key.shadow.camera.left=-7;key.shadow.camera.right=7;key.shadow.camera.top=7;key.shadow.camera.bottom=-4;scene.add(key);
+    const fill=new THREE.DirectionalLight(0x9eb8d8,2.6);fill.position.set(7,4,4);scene.add(fill);
+    const rim=new THREE.DirectionalLight(0xdfe8ff,3.2);rim.position.set(2,7,-8);scene.add(rim);
+    const floor=new THREE.Mesh(new THREE.PlaneGeometry(36,28),new THREE.ShadowMaterial({color:0x000000,opacity:.3}));floor.rotation.x=-Math.PI/2;floor.position.y=-.03;floor.receiveShadow=true;scene.add(floor);
 
-    const wheel=(x,scale=1)=>{
-      const g=new THREE.Group();g.position.set(x,1.22,0);bike.add(g);
-      const tire=add(g,new THREE.TorusGeometry(1.04*scale,.24*scale,16,42),rubber);
-      const rim=add(g,new THREE.TorusGeometry(.76*scale,.095*scale,12,36),matte);
-      const redRing=add(g,new THREE.TorusGeometry(.67*scale,.045*scale,10,36),red);
-      const disc=cyl(g,.53*scale,.53*scale,.12,blue,[0,0,.07],[Math.PI/2,0,0]);
-      const hub=cyl(g,.18*scale,.18*scale,.18,black,[0,0,.13],[Math.PI/2,0,0]);
-      for(let i=0;i<6;i++){const a=i*Math.PI/3;const spoke=box(g,[.08,.05,.65*scale],matte,[Math.cos(a)*.35*scale,Math.sin(a)*.35*scale,.08],[0,0,a-Math.PI/2]);}
-      return {g,tire,rim,redRing,disc,hub};
-    };
-    const front=wheel(-2.55,1.08), rear=wheel(2.1,.86);
-    const frame=new THREE.Group(); bike.add(frame);
-    tube(frame,[[-2.5,1.55,0],[-1.35,2.35,0],[.6,2.12,0],[2.1,1.48,0]],.09,matte);
-    tube(frame,[[-1.35,2.35,0],[.2,1.45,0],[2.1,1.48,0]],.08,blue);
-    tube(frame,[[-.15,1.4,-.14],[1.2,1.56,-.16],[2.15,1.45,-.1]],.065,black);
-    const body=new THREE.Group(); bike.add(body);
-    box(body,[2.65,.7,1.28],black,[-.4,2.35,0],[0,.1,0]);
-    box(body,[1.82,.52,1.4],blue,[.7,2.1,0],[0,-.14,0]);
-    box(body,[1.42,.28,1.12],matte,[.46,2.7,0],[0,-.05,0]);
-    box(body,[1.15,.36,1.18],black,[1.55,2.35,0],[0,-.2,0]);
-    box(body,[1.25,.2,1.08],black,[.18,3.02,0],[0,-.13,0]);
-    box(body,[.7,.38,1.5],black,[-1.65,2.6,0],[0,.28,0]);
-    const sideL=box(body,[1.9,.92,.08],matte,[.02,2.2,.72],[0,-.26,0]);
-    const sideR=box(body,[1.9,.92,.08],matte,[.02,2.2,-.72],[0,-.26,0]);
-    box(body,[.58,.82,.1],red,[-.66,2.28,.78],[0,-.26,0]); box(body,[.58,.82,.1],red,[-.66,2.28,-.78],[0,-.26,0]);
-    const wind=box(body,[.12,1.55,1.42],glass,[-1.4,3.55,0],[0,0,.28]); wind.rotation.z=-.42;
-    const visor=box(body,[.15,.32,1.5],black,[-1.7,2.95,0],[0,0,.2]);
-    const head=new THREE.Group();head.position.set(-1.75,2.55,0);bike.add(head);
-    const ring=add(head,new THREE.TorusGeometry(.48,.085,12,36),red,[0,0,.72],[Math.PI/2,0,0]);
-    const core=cyl(head,.36,.36,.14,black,[0,0,.73],[Math.PI/2,0,0]);
-    for(let i=0;i<3;i++){const fin=box(head,[.62,.11,.1],matte,[0,0,.84],[0,0,i*Math.PI/3]);}
-    const emblem=add(head,new THREE.OctahedronGeometry(.14,0),glow,[0,0,.92]);
-    const steering=new THREE.Group(); steering.position.set(-1.92,3.02,0);bike.add(steering);
-    tube(steering,[[0,0,0],[-.28,.36,.36],[.1,.48,.74]],.06,matte); tube(steering,[[0,0,0],[-.28,.36,-.36],[.1,.48,-.74]],.06,matte);
-    box(steering,[.62,.1,.1],black,[.1,.48,.74],[0,0,.18]); box(steering,[.62,.1,.1],black,[.1,.48,-.74],[0,0,-.18]);
-    const tail=new THREE.Group();tail.position.set(2.25,2.14,0);bike.add(tail);
-    box(tail,[1.18,.38,.88],black,[.26,.16,0],[0,.18,0]);
-    const tailGlow=box(tail,[.18,.28,.62],glow,[.8,.22,0]);
-    tube(tail,[[.24,.2,.38],[.72,.48,.76],[1.22,.68,.82]],.07,matte); tube(tail,[[.24,.2,-.38],[.72,.48,-.76],[1.22,.68,-.82]],.07,matte);
-    const runtime={yaw:-.62,pitch:.15,distance:10.8,spin:true,engine:false,wheels:[front,rear]};bike.userData.sculptRuntime=runtime;
+    const bike=new THREE.Group();bike.position.y=.04;scene.add(bike);
+    const rubber=new THREE.MeshPhysicalMaterial({color:0x08090a,roughness:.74,metalness:.03,clearcoat:.12});
+    const graphite=new THREE.MeshPhysicalMaterial({color:0x111319,roughness:.24,metalness:.58,clearcoat:.82,clearcoatRoughness:.16});
+    const carbon=new THREE.MeshPhysicalMaterial({color:0x1a1e26,roughness:.35,metalness:.46,clearcoat:.32});
+    const gunmetal=new THREE.MeshStandardMaterial({color:0x414b5e,roughness:.36,metalness:.68});
+    const slate=new THREE.MeshStandardMaterial({color:0x2c3648,roughness:.42,metalness:.58});
+    const darkSteel=new THREE.MeshStandardMaterial({color:0x171b22,roughness:.3,metalness:.82});
+    const polished=new THREE.MeshPhysicalMaterial({color:0xa7aeb6,roughness:.16,metalness:1,clearcoat:.45});
+    const red=new THREE.MeshPhysicalMaterial({color:0xe32232,emissive:0x5d0309,emissiveIntensity:.35,roughness:.2,metalness:.55,clearcoat:.8});
+    const redGlow=new THREE.MeshStandardMaterial({color:0xff3544,emissive:0xff0713,emissiveIntensity:2.5,roughness:.2,metalness:.2});
+    const amber=new THREE.MeshStandardMaterial({color:0xffa633,emissive:0xb54a00,emissiveIntensity:1.4,roughness:.2});
+    const glass=new THREE.MeshPhysicalMaterial({color:0xcbd9e2,roughness:.16,metalness:.08,transparent:true,opacity:.34,transmission:.26,thickness:.08,side:THREE.DoubleSide,depthWrite:false});
+    const ventMat=new THREE.MeshStandardMaterial({color:0x08090b,roughness:.7,metalness:.25});
+    const decalMat=new THREE.MeshBasicMaterial({color:0xf4f2ed,side:THREE.DoubleSide});
+
+    const add=(parent,geometry,material,position=[0,0,0],rotation=[0,0,0],scale=[1,1,1])=>{const mesh=new THREE.Mesh(geometry,material);mesh.position.set(...position);mesh.rotation.set(...rotation);mesh.scale.set(...scale);mesh.castShadow=mesh.receiveShadow=true;parent.add(mesh);return mesh};
+    const box=(parent,size,material,position,rotation=[0,0,0])=>add(parent,new THREE.BoxGeometry(...size),material,position,rotation);
+    const cyl=(parent,radius,depth,material,position,rotation=[Math.PI/2,0,0],segments=48)=>add(parent,new THREE.CylinderGeometry(radius,radius,depth,segments),material,position,rotation);
+    const tube=(parent,points,radius,material,segments=64)=>{const curve=new THREE.CatmullRomCurve3(points.map(p=>new THREE.Vector3(...p)));return add(parent,new THREE.TubeGeometry(curve,segments,radius,12,false),material)};
+    const panel=(parent,points,depth,material,z=0,bevel=.035)=>{const shape=new THREE.Shape();shape.moveTo(points[0][0],points[0][1]);for(const p of points.slice(1))shape.lineTo(p[0],p[1]);shape.closePath();const geometry=new THREE.ExtrudeGeometry(shape,{depth,bevelEnabled:true,bevelSize:bevel,bevelThickness:bevel,bevelSegments:2,curveSegments:10});geometry.translate(0,0,-depth/2);return add(parent,geometry,material,[0,0,z])};
+    const ring=(parent,radius,tubeRadius,material,position,rotation=[0,0,0],segments=72)=>add(parent,new THREE.TorusGeometry(radius,tubeRadius,16,segments),material,position,rotation);
+
+    function addTread(wheel,radius,width,count){const geometry=new THREE.BoxGeometry(.07,.018,width*.82);const mesh=new THREE.InstancedMesh(geometry,rubber,count);const dummy=new THREE.Object3D();for(let i=0;i<count;i++){const a=i*Math.PI*2/count;dummy.position.set(Math.cos(a)*radius,Math.sin(a)*radius,0);dummy.rotation.z=a+Math.PI/2;dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix)}mesh.castShadow=true;wheel.add(mesh)}
+    function addBoltCircle(parent,radius,z,count=8,boltRadius=.035){for(let i=0;i<count;i++){const a=i*Math.PI*2/count;cyl(parent,boltRadius,.035,polished,[Math.cos(a)*radius,Math.sin(a)*radius,z],[Math.PI/2,0,0],12)}}
+    function createWheel(x,y,radius,width,isFront){const group=new THREE.Group();group.position.set(x,y,0);bike.add(group);ring(group,radius-.18,.20,rubber,[0,0,0]);ring(group,radius-.43,.065,darkSteel,[0,0,.28]);cyl(group,radius-.48,.24,gunmetal,[0,0,.03]);cyl(group,radius-.7,.31,slate,[0,0,.22]);ring(group,radius-.59,.018,polished,[0,0,.355]);cyl(group,isFront?.32:.2,.4,graphite,[0,0,.22]);addBoltCircle(group,isFront?.48:.31,.43,isFront?8:6,.028);return group}
+
+    const frontWheel=createWheel(-2.18,1.26,1.27,.48,true);
+    const rearWheel=createWheel(2.24,.94,.87,.5,false);
+    add(frontWheel,new THREE.SphereGeometry(.66,48,32),slate,[0,0,.43],[0,0,0],[1,1,.28]);
+    ring(rearWheel,.58,.038,red,[0,0,.4]);
+    ring(rearWheel,.47,.018,red,[0,0,.43]);
+
+    // Macro silhouette: front fender, backbone, lower engine mass and rear enclosure.
+    const fenderPts=[];for(let i=0;i<18;i++){const a=.12*Math.PI+i*(.67*Math.PI/17);fenderPts.push([-2.18+Math.cos(a)*1.43,1.26+Math.sin(a)*1.43,.08])}tube(bike,fenderPts,.12,graphite,70);
+    panel(bike,[[-2.94,2.33],[-2.82,2.77],[-2.16,3.02],[-1.45,2.91],[-1.30,2.56],[-2.05,2.38]],.76,graphite,0,.055);
+    panel(bike,[[-2.48,2.74],[-2.28,3.23],[-1.25,3.16],[-1.1,2.82],[-1.55,2.48],[-2.2,2.51]],.82,carbon,0,.045);
+    box(bike,[.62,.32,.7],darkSteel,[-2.45,2.55,.04],[0,0,.08]);
+    box(bike,[.34,.17,.48],amber,[-2.68,2.61,.43],[0,0,.08]);
+
+    panel(bike,[[-1.38,3.19],[-.7,3.25],[-.28,2.72],[-1.19,.84],[-1.77,1.03],[-1.45,2.24]],.30,graphite,.57,.045);
+    panel(bike,[[-1.27,2.94],[-.76,3.03],[-.57,2.67],[-1.25,1.18],[-1.61,1.12],[-1.42,2.32]],.15,carbon,.78,.025);
+    panel(bike,[[-.77,2.70],[-.25,2.67],[.39,2.16],[.08,1.39],[-.83,1.16],[-1.21,1.55]],.82,slate,0,.055);
+    panel(bike,[[-.3,2.48],[.74,2.55],[1.37,2.14],[1.12,1.43],[.08,1.32],[-.32,1.67]],.92,gunmetal,0,.055);
+    panel(bike,[[.66,2.45],[1.43,2.37],[2.13,1.93],[1.91,1.36],[1.15,1.39],[.86,1.82]],.74,slate,0,.045);
+    panel(bike,[[1.34,2.22],[2.22,2.05],[2.47,1.69],[2.20,1.31],[1.55,1.35],[1.25,1.76]],.42,carbon,.34,.035);
+    panel(bike,[[.55,2.36],[1.26,2.28],[2.03,1.82],[1.82,1.42],[1.02,1.46],[.62,1.82]],.16,gunmetal,.64,.025);
+    panel(bike,[[.08,1.42],[1.2,1.48],[1.67,1.05],[1.31,.62],[-.05,.62],[-.48,.96]],.72,graphite,-.03,.05);
+
+    // Mechanical casings and layered engine blocks.
+    cyl(bike,.5,.28,gunmetal,[.37,1.37,.61]);
+    cyl(bike,.36,.34,slate,[.37,1.37,.78]);
+    cyl(bike,.19,.39,graphite,[.37,1.37,.9]);
+    for(let i=0;i<7;i++){const angle=i*Math.PI*2/7;cyl(bike,.026,.035,polished,[.37+Math.cos(angle)*.3,1.37+Math.sin(angle)*.3,.99],[Math.PI/2,0,0],12)}
+    box(bike,[.75,.48,.34],darkSteel,[.84,1.89,.64],[0,0,-.13]);
+    box(bike,[.55,.32,.38],gunmetal,[1.28,1.74,.72],[0,0,.08]);
+    box(bike,[.38,.23,.42],carbon,[1.55,2.08,.6],[0,0,-.15]);
+    cyl(bike,.22,.1,graphite,[1.69,1.86,.8]);
+    cyl(bike,.145,.12,red,[1.69,1.86,.86]);
+    panel(bike,[[1.59,1.86],[1.7,1.99],[1.79,1.89],[1.72,1.83],[1.79,1.74],[1.67,1.77]],.025,decalMat,.94,.006);
+    for(let i=0;i<5;i++)box(bike,[.08,.35,.42],gunmetal,[.72+i*.16,2.22-i*.035,.27],[0,0,-.14]);
+    tube(bike,[[-1.53,1.14,-.28],[-.76,.72,-.35],[.25,.71,-.34],[1.23,1.08,-.31]],.055,darkSteel,54);
+    tube(bike,[[-1.25,2.83,-.2],[-.75,2.25,-.24],[.08,1.22,-.25],[1.72,1.15,-.2]],.06,darkSteel,64);
+
+    // Dominant concentric red rotor from the reference.
+    const rotor=new THREE.Group();rotor.position.set(-.42,2.71,.77);bike.add(rotor);
+    ring(rotor,.62,.105,darkSteel,[0,0,0]);
+    ring(rotor,.54,.052,red,[0,0,.07]);
+    ring(rotor,.43,.035,redGlow,[0,0,.1]);
+    cyl(rotor,.36,.18,graphite,[0,0,.08]);
+    cyl(rotor,.24,.26,gunmetal,[0,0,.19]);
+    panel(rotor,[[-.06,.25],[.57,.36],[.67,.12],[.2,-.08],[-.12,-.04]],.12,slate,.28,.02);
+    panel(rotor,[[-.26,.1],[.2,-.08],[.35,-.45],[.13,-.61],[-.11,-.32]],.13,gunmetal,.29,.02);
+    addBoltCircle(rotor,.48,.18,10,.022);
+
+    // Tall translucent windscreen and its lower opaque mount.
+    panel(bike,[[-1.34,3.02],[-.5,3.88],[.42,4.42],[1.06,4.36],[1.36,3.96],[1.42,3.05],[.68,2.78],[-.38,2.84]],.075,glass,-.06,.02);
+    panel(bike,[[-1.08,3.03],[-.48,3.58],[.2,3.72],[1.08,3.38],[1.34,2.91],[.66,2.72],[-.25,2.83]],.18,carbon,.11,.025);
+    tube(bike,[[-1.28,3.05,-.02],[-.49,3.87,-.02],[.41,4.41,-.02],[1.05,4.35,-.02],[1.35,3.96,-.02]],.035,polished,64);
+    const ventPositions=[[.56,3.38],[.78,3.43],[.98,3.37],[.62,3.16],[.84,3.19],[1.03,3.1]];
+    for(const [x,y] of ventPositions){cyl(bike,.07,.06,ventMat,[x,y,.24],[Math.PI/2,0,0],18);ring(bike,.075,.012,polished,[x,y,.28])}
+
+    // Seat, pads, rear guards and paired polished exhausts.
+    panel(bike,[[.22,2.59],[.93,2.56],[1.35,2.34],[1.1,2.16],[.34,2.18],[-.02,2.37]],.72,graphite,0,.045);
+    box(bike,[.66,.13,.66],carbon,[.82,2.6,.02],[0,0,-.08]);
+    for(let x=.55;x<1.12;x+=.14)for(let z=-.21;z<.3;z+=.14)cyl(bike,.018,.018,darkSteel,[x,2.685,z],[0,0,0],8);
+    panel(bike,[[1.15,1.38],[1.74,1.35],[2.4,1.55],[2.55,1.15],[2.25,.82],[1.5,.9]],.18,graphite,.5,.03);
+    tube(bike,[[1.23,1.83,.35],[1.72,1.77,.64],[2.17,1.83,.77],[2.78,1.92,.81],[3.08,2.05,.81],[3.13,2.38,.81]],.065,polished,76);
+    tube(bike,[[1.2,1.67,.25],[1.69,1.6,.5],[2.18,1.65,.62],[2.73,1.74,.65],[3.0,1.88,.65],[3.03,2.17,.65]],.055,darkSteel,76);
+    tube(bike,[[1.18,1.7,.31],[1.7,1.66,.56],[2.18,1.72,.68],[2.75,1.82,.7],[3.04,1.96,.7],[3.08,2.25,.7]],.034,polished,76);
+    box(bike,[.26,.18,.68],graphite,[1.52,1.72,.27],[0,0,-.08]);
+    const tailGlow=add(bike,new THREE.SphereGeometry(.18,24,16),redGlow,[1.78,1.98,.58],[0,0,0],[1,.75,.52]);
+
+    // Reference markings and micro identity details.
+    function makeMarking(){const c=document.createElement('canvas');c.width=512;c.height=512;const x=c.getContext('2d');x.clearRect(0,0,512,512);x.fillStyle='#f8f6ef';x.beginPath();x.moveTo(75,70);x.lineTo(235,150);x.lineTo(183,42);x.lineTo(422,215);x.lineTo(267,157);x.lineTo(326,271);x.closePath();x.fill();x.font='900 70px Arial';x.textAlign='center';x.fillText('AREU',260,380);x.font='800 58px Arial';x.fillText('RB08',260,447);const texture=new THREE.CanvasTexture(c);texture.colorSpace=THREE.SRGBColorSpace;return new THREE.MeshBasicMaterial({map:texture,transparent:true,depthWrite:false,side:THREE.DoubleSide})}
+    const marking=add(bike,new THREE.PlaneGeometry(.66,.92),makeMarking(),[-1.18,2.08,.92],[0,0,-.2]);
+    const lowerVents=[[-1.49,1.19],[-1.39,1.21],[-1.29,1.24],[-1.45,1.08],[-1.35,1.1],[-1.25,1.13]];
+    for(const [x,y] of lowerVents)cyl(bike,.033,.025,ventMat,[x,y,.91],[Math.PI/2,0,0],12);
+    for(const side of [-1,1]){box(bike,[.16,.07,.1],darkSteel,[-2.43+side*.13,3.18,.23],[0,0,side*.18]);tube(bike,[[-.72,2.93,side*.16],[-.22,3.18,side*.54],[.34,3.12,side*.74]],.035,darkSteel,36)}
+
+    const runtime={yaw:-.62,pitch:.075,distance:9.7,spin:false,engine:false,wheels:[frontWheel,rearWheel]};bike.userData.sculptRuntime=runtime;
+    const resetView=()=>{runtime.yaw=-.62;runtime.pitch=.075;runtime.distance=9.7};
     let dragging=false,lastX=0,lastY=0;
-    canvas.addEventListener('pointerdown',e=>{dragging=true;lastX=e.clientX;lastY=e.clientY;canvas.setPointerCapture(e.pointerId)});
-    canvas.addEventListener('pointermove',e=>{if(!dragging)return;runtime.yaw+=(e.clientX-lastX)*.008;runtime.pitch=THREE.MathUtils.clamp(runtime.pitch+(e.clientY-lastY)*.008,-.62,.45);lastX=e.clientX;lastY=e.clientY});
+    canvas.addEventListener('pointerdown',event=>{dragging=true;lastX=event.clientX;lastY=event.clientY;canvas.setPointerCapture(event.pointerId)});
+    canvas.addEventListener('pointermove',event=>{if(!dragging)return;runtime.yaw+=(event.clientX-lastX)*.007;runtime.pitch=THREE.MathUtils.clamp(runtime.pitch+(event.clientY-lastY)*.007,-.55,.42);lastX=event.clientX;lastY=event.clientY});
     canvas.addEventListener('pointerup',()=>dragging=false);
-    canvas.addEventListener('wheel',e=>runtime.distance=THREE.MathUtils.clamp(runtime.distance+e.deltaY*.008,6.8,17),{passive:true});
-    document.querySelector('#spin').addEventListener('click',e=>{runtime.spin=!runtime.spin;e.currentTarget.textContent=runtime.spin?'暂停自转':'开启自转'});
-    document.querySelector('#engine').addEventListener('click',e=>{runtime.engine=!runtime.engine;e.currentTarget.textContent=runtime.engine?'关闭引擎':'启动引擎';document.querySelector('#note-text').textContent=runtime.engine?'引擎已启动：轮组、红环和尾部能源核心进入动画状态。':'单张参考图重建：正面三分之四视角特征已实现；背面、底部与机械连接为风格化推断。'});
+    canvas.addEventListener('wheel',event=>runtime.distance=THREE.MathUtils.clamp(runtime.distance+event.deltaY*.007,7.2,16),{passive:true});
+    document.querySelector('#reset').addEventListener('click',resetView);
+    document.querySelector('#compare').addEventListener('click',event=>{const image=document.querySelector('#reference');image.classList.toggle('show');event.currentTarget.textContent=image.classList.contains('show')?'隐藏参考图':'显示参考图'});
+    document.querySelector('#spin').addEventListener('click',event=>{runtime.spin=!runtime.spin;event.currentTarget.textContent=runtime.spin?'暂停自转':'开启自转'});
+    document.querySelector('#engine').addEventListener('click',event=>{runtime.engine=!runtime.engine;event.currentTarget.textContent=runtime.engine?'关闭引擎':'启动引擎';document.querySelector('#note-text').textContent=runtime.engine?'引擎动画已启用：轮组与红色能源环进入运行状态。':'参考视角优先：轮组比例、透明风罩、侧梁红环、装甲层级与双排气管均按附件重建。'});
     addEventListener('message',event=>{if(event.data?.action==='bike-engine')document.querySelector('#engine').click();if(event.data?.action==='spin-toggle')document.querySelector('#spin').click()});
-    function resize(){const {clientWidth:w,clientHeight:h}=canvas;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()} addEventListener('resize',resize);resize();
-    const clock=new THREE.Clock();function render(){requestAnimationFrame(render);const dt=clock.getDelta(),t=clock.elapsedTime;if(runtime.spin&&!dragging)runtime.yaw+=dt*.16;const h=runtime.distance*Math.cos(runtime.pitch);camera.position.set(h*Math.sin(runtime.yaw),2.35+runtime.distance*Math.sin(runtime.pitch),h*Math.cos(runtime.yaw));camera.lookAt(0,1.95,0);const speed=runtime.engine?dt*7:dt*.22;for(const w of runtime.wheels){w.g.rotation.z-=speed;w.redRing.material.emissiveIntensity=runtime.engine?1.8:.7}emblem.rotation.y+=dt*1.8;emblem.material.emissiveIntensity=runtime.engine?4:2.4;tailGlow.material.emissiveIntensity=runtime.engine?4:2.2;bike.position.y=runtime.engine?Math.sin(t*5)*.035:0;renderer.render(scene,camera)} render();
+    function resize(){const {clientWidth:width,clientHeight:height}=canvas;renderer.setSize(width,height,false);camera.aspect=width/height;camera.updateProjectionMatrix()}addEventListener('resize',resize);resize();
+    const clock=new THREE.Clock();function render(){requestAnimationFrame(render);const dt=clock.getDelta(),time=clock.elapsedTime;if(runtime.spin&&!dragging)runtime.yaw+=dt*.14;const horizontal=runtime.distance*Math.cos(runtime.pitch);camera.position.set(horizontal*Math.sin(runtime.yaw),2.08+runtime.distance*Math.sin(runtime.pitch),horizontal*Math.cos(runtime.yaw));camera.lookAt(.08,2.05,0);if(runtime.engine){for(const wheel of runtime.wheels)wheel.rotation.z-=dt*4.8;rotor.rotation.z+=dt*1.8;redGlow.emissiveIntensity=2.7+Math.sin(time*7)*.7;bike.position.y=.04+Math.sin(time*8)*.012}else{redGlow.emissiveIntensity=2.35;bike.position.y=.04}tailGlow.material.emissiveIntensity=runtime.engine?3.7:2.5;renderer.render(scene,camera)}render();
   </script>
 </body>
 </html>
