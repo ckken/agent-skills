@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="img2threejs 交互式多示例 WebGL 测试台。">
   <title>img2threejs · Demo Lab</title>
+  <script>
+    if (location.protocol === 'file:') {
+      const target = new URL('http://localhost:8766/demo.html');
+      target.search = location.search;
+      target.hash = location.hash;
+      location.replace(target.href);
+    }
+  </script>
   <style>
     :root { color-scheme:dark; --bg:#050b18; --panel:#0a1729; --line:rgba(104,224,255,.24); --text:#eff8ff; --muted:#9ab2ca; --cyan:#68e0ff; --gold:#f2b85b; --green:#78e5a4; }
     * { box-sizing:border-box; }
