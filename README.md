@@ -18,3 +18,9 @@
 | 技能 | 介绍 |
 | --- | --- |
 | [apple-design](./skills/design/apple-design/) | 将 Apple 的界面设计与流体物理动效方法论翻译到 Web 平台，涵盖手势驱动 UI、弹簧动画、可中断过渡、材质层次与排版。 |
+
+## 游戏类
+
+| 技能 | 介绍 |
+| --- | --- |
+| [img2threejs](./skills/game/img2threejs/) | 将参考图重建为带细节门禁、动画层级和交互规划的程序化 Three.js 游戏资产。 |
