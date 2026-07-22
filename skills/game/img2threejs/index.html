@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="img2threejs：将参考图重建为程序化 Three.js 游戏资产。">
+  <title>img2threejs · Game Asset Skill</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #050b18;
+      --panel: rgba(11, 25, 48, .78);
+      --line: rgba(96, 183, 255, .22);
+      --text: #edf6ff;
+      --muted: #9cb5cf;
+      --cyan: #55d7ff;
+      --gold: #f2b85b;
+      --green: #75e0a0;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font: 16px/1.6 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 82% 8%, rgba(29, 116, 181, .22), transparent 30rem),
+        radial-gradient(circle at 12% 36%, rgba(24, 63, 126, .2), transparent 28rem),
+        var(--bg);
+    }
+    a { color: var(--cyan); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .shell { width: min(1160px, calc(100% - 40px)); margin: 0 auto; }
+    nav { display: flex; justify-content: space-between; align-items: center; padding: 24px 0; }
+    .brand { color: var(--text); font-weight: 750; letter-spacing: .02em; }
+    .brand span { color: var(--cyan); }
+    nav a { margin-left: 22px; color: var(--muted); font-size: 14px; }
+    .hero { display: grid; grid-template-columns: 1fr 1.08fr; gap: 42px; align-items: center; padding: 48px 0 70px; }
+    .eyebrow { color: var(--gold); font-size: 13px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+    h1 { max-width: 650px; margin: 12px 0 18px; font-size: clamp(42px, 7vw, 76px); line-height: .98; letter-spacing: -.055em; }
+    .lead { max-width: 590px; color: var(--muted); font-size: 19px; }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+    .button { display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 999px; padding: 10px 17px; background: rgba(33, 76, 124, .24); color: var(--text); font-weight: 650; }
+    .button.primary { border-color: transparent; background: linear-gradient(135deg, #1593d1, #3260d8); }
+    .button:hover { text-decoration: none; transform: translateY(-1px); }
+    .hero-art { overflow: hidden; border: 1px solid var(--line); border-radius: 24px; box-shadow: 0 24px 90px rgba(0, 0, 0, .34); background: #081326; }
+    .hero-art img { display: block; width: 100%; height: auto; }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 28px; }
+    .stat, .card { border: 1px solid var(--line); border-radius: 16px; background: var(--panel); backdrop-filter: blur(12px); }
+    .stat { padding: 18px 20px; }
+    .stat strong { display: block; color: var(--cyan); font-size: 26px; }
+    .stat span { color: var(--muted); font-size: 13px; }
+    section { padding: 34px 0; }
+    h2 { margin: 0 0 18px; font-size: 28px; letter-spacing: -.025em; }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .card { padding: 22px; }
+    .card h3 { margin: 0 0 8px; font-size: 18px; }
+    .card p { margin: 0; color: var(--muted); }
+    .dot { display: inline-block; width: 9px; height: 9px; margin-right: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 14px var(--green); }
+    .pipeline { display: flex; flex-wrap: wrap; gap: 8px; }
+    .step { border: 1px solid rgba(242, 184, 91, .3); border-radius: 999px; padding: 8px 13px; color: #f8d397; background: rgba(92, 57, 18, .22); font-size: 14px; }
+    footer { padding: 46px 0 34px; color: var(--muted); font-size: 13px; }
+    @media (max-width: 780px) {
+      .hero { grid-template-columns: 1fr; padding-top: 24px; }
+      .hero-art { order: -1; }
+      .grid, .stats { grid-template-columns: 1fr; }
+      nav a { margin-left: 10px; }
+      .shell { width: min(100% - 28px, 1160px); }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <nav>
+      <div class="brand"><span>◆</span> img2threejs</div>
+      <div>
+        <a href="README.md">README</a>
+        <a href="SKILL.md">SKILL.md</a>
+        <a href="forge/tests/test_pipeline.py">Tests</a>
+      </div>
+    </nav>
+
+    <main>
+      <section class="hero">
+        <div>
+          <div class="eyebrow">Game · Three.js · Procedural</div>
+          <h1>把参考图，变成可玩的 3D 资产。</h1>
+          <p class="lead">一个质量门禁驱动的 Skill：从单张图片提取结构、材质和关键细节，逐阶段生成可动画、可交互的 Three.js 游戏对象。</p>
+          <div class="actions">
+            <a class="button primary" href="README.md">阅读使用说明 →</a>
+            <a class="button" href="grimoire/scripts.md">查看脚本参数</a>
+          </div>
+        </div>
+        <div class="hero-art"><img src="assets/cover.optimized.webp" alt="参考图到线框再到游戏宝箱模型的重建流程"></div>
+      </section>
+
+      <div class="stats">
+        <div class="stat"><strong>19 / 19</strong><span>自动化测试通过</span></div>
+        <div class="stat"><strong>0 deps</strong><span>Python 标准库工具链</span></div>
+        <div class="stat"><strong>MIT</strong><span>开源许可证</span></div>
+      </div>
+
+      <section>
+        <h2>它解决什么问题</h2>
+        <div class="grid">
+          <article class="card"><h3><span class="dot"></span>游戏道具</h3><p>从宝箱、武器、机械件到场景组件，生成带材质和细节层级的程序化模型。</p></article>
+          <article class="card"><h3><span class="dot"></span>动作就绪</h3><p>规划 pivot、socket、collider 和 destruction group，避免得到不可交互的模型孤岛。</p></article>
+          <article class="card"><h3><span class="dot"></span>视觉复核</h3><p>每个构建阶段都需要浏览器截图与参考图对比，关键特征不达标就停止推进。</p></article>
+        </div>
+      </section>
+
+      <section>
+        <h2>分阶段流水线</h2>
+        <div class="pipeline">
+          <span class="step">01 适配性判断</span><span class="step">02 细节清单</span><span class="step">03 Sculpt Spec</span><span class="step">04 严格校验</span><span class="step">05 Three.js 工厂</span><span class="step">06 截图复核</span><span class="step">07 交互优化</span>
+        </div>
+      </section>
+
+      <section>
+        <h2>快速入口</h2>
+        <div class="grid">
+          <article class="card"><h3><a href="forge/">Forge Scripts ↗</a></h3><p>图片探测、规格生成、质量校验、代码生成和 Review 工具。</p></article>
+          <article class="card"><h3><a href="grimoire/">Grimoire ↗</a></h3><p>几何、材质、角色、连接点和自校正规则。</p></article>
+          <article class="card"><h3><a href="LICENSE">License ↗</a></h3><p>基于 hoainho/img2threejs 的 MIT 许可内容。</p></article>
+        </div>
+      </section>
+    </main>
+
+    <footer>img2threejs · Image to procedural Three.js · game skill preview</footer>
+  </div>
+</body>
+</html>
