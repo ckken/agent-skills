@@ -6,7 +6,7 @@
 
 ## 在线体验
 
-[打开 Cloudflare Pages WebGL Demo](https://img2threejs-demo.pages.dev/demo?model=car)
+[打开 Cloudflare Pages WebGL Demo](https://img2threejs-demo.pages.dev/demo?model=car&v=gt-car)
 
 Demo 内含宝箱、概念摩托和多视图 GT 赛车三个模型。GT 赛车示例使用六向正投影、四个三分之四
 视角及八组细节特写共同约束车体、轮组、空气动力套件和 PBR 材质。默认的多视图投影模式用于
