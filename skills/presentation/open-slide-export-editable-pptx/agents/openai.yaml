@@ -1,4 +1,0 @@
-interface:
-  display_name: "Open Slide 可编辑 PPTX 导出"
-  short_description: "高精度导出可编辑 PPTX、备注与 PowerPoint 验收"
-  default_prompt: "Use $open-slide-export-editable-pptx to export this Open Slide deck as an editable PPTX with notes and verify it in PowerPoint."

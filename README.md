@@ -19,12 +19,6 @@
 | --- | --- |
 | [apple-design](./skills/design/apple-design/) | 将 Apple 的界面设计与流体物理动效方法论翻译到 Web 平台，涵盖手势驱动 UI、弹簧动画、可中断过渡、材质层次与排版。 |
 
-## 演示文稿类
-
-| 技能 | 介绍 |
-| --- | --- |
-| [open-slide-export-editable-pptx](./skills/presentation/open-slide-export-editable-pptx/) | 将 Open Slide React 幻灯片高精度导出为可编辑 PPTX，保留演讲备注，并通过 OOXML 与 Microsoft PowerPoint 实机验收。 |
-
 ## 游戏类
 
 | 技能 | 介绍 |
